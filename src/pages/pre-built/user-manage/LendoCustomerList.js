@@ -31,14 +31,14 @@ import {
     TooltipComponent,
 } from '../../../components/Component'
 import { Link } from 'react-router-dom'
-import { UserContext } from './UserContext'
+import { LendoContext } from './LendoContext'
 import EditModal from './EditModal'
 import AddModal from './AddModal'
 import { bulkActionOptions } from '../../../utils/Utils'
 import dataInstance from '../../../utils/axios'
 import { useCookies } from 'react-cookie'
-const CustomerList = () => {
-    const { contextData } = useContext(UserContext)
+const LendoCustomerList = () => {
+    const { contextData } = useContext(LendoContext)
     const [data, setData] = contextData
 
     const [sm, updateSm] = useState(false)
@@ -71,16 +71,32 @@ const CustomerList = () => {
     const [sort, setSortState] = useState('')
 
     const [tableHeader, setTableHeader] = useState([
-        { title: 'Name', visible: true, key: 'last_name' },
-        { title: 'Email', visible: true, key: 'email' },
+        { title: 'Name', visible: true, key: 'name' },
+        { title: 'Passport', visible: true, key: 'document_serial' },
+        { title: 'Pinfl', visible: true, key: 'pinfl' },
         { title: 'Phone', visible: true, key: 'phone' },
-        { title: 'Birth Country', visible: true, key: 'birth_country' },
-        { title: 'Status', visible: true, key: 'status' },
-        { title: 'Birthday', visible: false, key: 'birth_date' },
-        { title: 'BXM Code', visible: false, key: 'bxmCode' },
-        { title: 'Client Code', visible: false, key: 'clientCode' },
-        { title: 'Client ID', visible: false, key: 'clientId' },
-        { title: 'Client Uid', visible: false, key: 'clientUid' },
+        { title: 'Birthday', visible: true, key: 'birth_date' },
+        { title: 'Email', visible: true, key: 'email' },
+
+        { title: 'BXM Code', visible: false, key: 'bxm' },
+        { title: 'Client Code', visible: false, key: 'client_code' },
+        { title: 'Client ID', visible: false, key: 'client_id' },
+        { title: 'Client Uid', visible: false, key: 'client_uid' },
+
+        {
+            title: 'Amal qilish muddati',
+            visible: false,
+            key: 'document_expire_date',
+        },
+        { title: 'Berilgan Sana', visible: false, key: 'document_issue_date' },
+        {
+            title: 'Passport issued place',
+            visible: false,
+            key: 'document_issue_place',
+        },
+        { title: 'Document Region', visible: false, key: 'document_region' },
+
+        { title: 'Address', visible: false, key: 'residence_address' },
     ])
     const [cookie, setCookie, removeCookie] = useCookies()
     const handleExport = () => {
@@ -106,18 +122,21 @@ const CustomerList = () => {
 
     // unselects the data on mount
     useEffect(() => {
-        let newData
-        newData = userData.map((item) => {
-            item.checked = false
-            return item
-        })
-
-        dataInstance.get('/api/v1/lendo-admin/get-all-customer').then((res) => {
-            setDataTest(
-                res?.data?.content.map((item) => ({ ...item, checked: false }))
-            )
-        })
-        setData([...newData])
+        dataInstance
+            .get('/api/v1/lendo-admin/get-customer-by-pagination')
+            .then((res) => {
+                setData(
+                    res?.data?.done.data.map((item) => ({
+                        ...item,
+                        checked: false,
+                    }))
+                )
+                setDataTest({
+                    totalItems: res?.data?.totalItems,
+                    totalPages: res?.data?.totalPages,
+                })
+            })
+            .catch((error) => console.log(error))
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     // Changing state value when searching name
@@ -129,13 +148,16 @@ const CustomerList = () => {
                         onSearchText
                 )
                 .then((res) => {
-                    console.log(res)
-                    setDataTest(
+                    setData(
                         res?.data?.done.data.map((item) => ({
                             ...item,
                             checked: false,
                         }))
                     )
+                    setDataTest({
+                        totalItems: res?.data?.totalItems,
+                        totalPages: res?.data?.totalPages,
+                    })
                 })
                 .catch((error) => console.log(error))
         }
@@ -154,16 +176,16 @@ const CustomerList = () => {
         //  else {
         //     setDataTest([...dataTest])
         // }
-    }, [onSearchText, setDataTest])
+    }, [onSearchText, setData])
 
     // onChange function for searching name
     const onFilterChange = (e) => {
         setSearchText(e.target.value)
     }
-
+    console.log(dataTest)
     // function to change the selected property of an item
     const onSelectChange = (e, id) => {
-        let newData = dataTest
+        let newData = data
         let index = newData.findIndex((item) => item.id === id)
         newData[index].checked = e.currentTarget.checked
         setData([...newData])
@@ -295,7 +317,7 @@ const CustomerList = () => {
     // function which selects all the items
     const selectorCheck = (e) => {
         let newData
-        newData = dataTest.map((item) => {
+        newData = data.map((item) => {
             item.checked = e.currentTarget.checked
             return item
         })
@@ -311,8 +333,7 @@ const CustomerList = () => {
     //   const currentItems = data.slice(indexOfFirstItem, indexOfLastItem);
     const indexOfLastItem = currentPage * itemPerPage
     const indexOfFirstItem = indexOfLastItem - itemPerPage
-    const currentItems =
-        dataTest && dataTest.slice(indexOfFirstItem, indexOfLastItem)
+    const currentItems = data && data.slice(indexOfFirstItem, indexOfLastItem)
     console.log(currentItems)
     // Change Page
     const paginate = (pageNumber) => setCurrentPage(pageNumber)
@@ -842,10 +863,14 @@ const CustomerList = () => {
                                         <DropdownMenu
                                             end
                                             className="dropdown-menu-xs"
+                                            style={{
+                                                overflow: 'hidden !important',
+                                                position: 'fixed !important',
+                                            }}
                                         >
                                             <ul className="link-tidy sm no-bdr">
                                                 {tableHeader
-                                                    .filter((e, i) => i > 4)
+                                                    .filter((e, i) => i > 5)
                                                     .map((item, index) => (
                                                         <li key={index}>
                                                             <div className="custom-control custom-control-sm custom-checkbox">
@@ -983,34 +1008,42 @@ const CustomerList = () => {
                                                                   item.avatarBg
                                                               }
                                                               className="xs"
-                                                              //   text={findUpper(
-                                                              //       item.first_name
-                                                              //   )}
+                                                              text={findUpper(
+                                                                  item.name
+                                                              )}
                                                               image={item.image}
                                                           ></UserAvatar>
                                                           <div className="user-name">
                                                               <span className="tb-lead">
-                                                                  {item.first_name +
+                                                                  {item.name +
                                                                       ' ' +
-                                                                      item.last_name +
+                                                                      item.family_name +
                                                                       ' ' +
-                                                                      item.middle_name}
+                                                                      item.patronymic}
                                                               </span>
                                                           </div>
                                                       </div>
                                                   </Link>
                                               </DataTableRow>
-
                                               <DataTableRow>
-                                                  <span>{item.email}</span>
+                                                  <span>
+                                                      {item.document_serial +
+                                                          item.document_number}
+                                                  </span>
                                               </DataTableRow>
                                               <DataTableRow>
-                                                  <span>{item.phone}</span>
+                                                  <span>{item.pinfl}</span>
                                               </DataTableRow>
                                               <DataTableRow>
                                                   <span>
-                                                      {item.birth_country}
+                                                      {'+' + item.phone}
                                                   </span>
+                                              </DataTableRow>
+                                              <DataTableRow>
+                                                  <span>{item.birth_date}</span>
+                                              </DataTableRow>
+                                              <DataTableRow>
+                                                  <span>{item.email}</span>
                                               </DataTableRow>
                                               {/* <DataTableRow size="lg">
                                                   <ul className="list-status">
@@ -1042,7 +1075,7 @@ const CustomerList = () => {
                                               {/* <DataTableRow size="lg">
                                                   <span>{item.lastLogin}</span>
                                               </DataTableRow> */}
-                                              <DataTableRow>
+                                              {/* <DataTableRow>
                                                   <span
                                                       className={`tb-status text-${
                                                           item.status ===
@@ -1056,12 +1089,12 @@ const CustomerList = () => {
                                                   >
                                                       {item.status}
                                                   </span>
-                                              </DataTableRow>
+                                              </DataTableRow> */}
 
                                               {tableHeader
                                                   .filter(
                                                       (e, i) =>
-                                                          i > 4 && e.visible
+                                                          i > 5 && e.visible
                                                   )
                                                   .map((el, index) => (
                                                       <DataTableRow key={index}>
@@ -1194,7 +1227,7 @@ const CustomerList = () => {
                             {currentItems && currentItems.length > 0 ? (
                                 <PaginationComponent
                                     itemPerPage={itemPerPage}
-                                    totalItems={dataTest && dataTest.length}
+                                    totalItems={data && data.length}
                                     paginate={paginate}
                                     currentPage={currentPage}
                                 />
@@ -1229,4 +1262,4 @@ const CustomerList = () => {
         </React.Fragment>
     )
 }
-export default CustomerList
+export default LendoCustomerList

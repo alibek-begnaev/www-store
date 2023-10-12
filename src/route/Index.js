@@ -3,6 +3,7 @@ import { Routes, Route, useLocation, Navigate } from 'react-router-dom'
 import { CustomerProvider } from '../pages/panel/e-commerce/customer/CustomerContext'
 import { ProductContextProvider } from '../pages/pre-built/products/ProductContext'
 import { UserContextProvider } from '../pages/pre-built/user-manage/UserContext'
+import { LendoContextProvider } from '../pages/pre-built/user-manage/LendoContext'
 
 import Homepage from '../pages/Homepage'
 import Sales from '../pages/Sales'
@@ -133,7 +134,7 @@ import Success from '../pages/auth/Success'
 
 import Layout from '../layout/Index'
 import LayoutNoSidebar from '../layout/Index-nosidebar'
-import CustomerList from '../pages/pre-built/user-manage/CustomerList'
+import LendoCustomerList from '../pages/pre-built/user-manage/LendoCustomerList'
 
 import { useCookies } from 'react-cookie'
 
@@ -208,6 +209,17 @@ const Router = () => {
                         y
                     </Route>
                 </Route>
+                {/*Applications*/}
+                <Route element={<LendoContextProvider />}>
+                    <Route
+                        path="lendo/customers"
+                        element={<LendoCustomerList />}
+                    ></Route>
+                    <Route
+                        path="project-list"
+                        element={<ProjectListPage />}
+                    ></Route>
+                </Route>
 
                 {/*Pre-built Pages*/}
                 <Route
@@ -230,7 +242,7 @@ const Router = () => {
                     ></Route>
                     <Route
                         path="user-list-compact"
-                        element={<CustomerList />}
+                        element={<UserListCompact />}
                     ></Route>
                     <Route
                         path="user-contact-card"

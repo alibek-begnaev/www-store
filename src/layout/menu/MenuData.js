@@ -54,16 +54,39 @@ const menu = [
         text: 'Default',
         link: '/',
     },
+    // {
+    //     icon: 'activity-round-fill',
+    //     text: 'Sales',
+    //     link: '/sales',
+    // },
+    // {
+    //     icon: 'growth-fill',
+    //     text: 'Analytics',
+    //     link: '/analytics',
+    // },
     {
-        icon: 'activity-round-fill',
-        text: 'Sales',
-        link: '/sales',
+        heading: 'Applications',
     },
     {
-        icon: 'growth-fill',
-        text: 'Analytics',
-        link: '/analytics',
+        icon: 'tile-thumb-fill',
+        text: 'Lendo',
+        active: false,
+        subMenu: [
+            {
+                text: 'Customers',
+                link: '/lendo/customers',
+            },
+            {
+                text: 'Loans',
+                link: 'lendo/loans',
+            },
+            {
+                text: 'Aplication-List',
+                link: '/lendo/',
+            },
+        ],
     },
+
     {
         heading: 'Pre-built Pages',
     },
@@ -150,7 +173,7 @@ const menu = [
     },
     {
         icon: 'grid-alt-fill',
-        text: 'Applications',
+        text: 'Application',
         active: false,
         subMenu: [
             {
