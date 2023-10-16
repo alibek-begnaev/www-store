@@ -69,7 +69,7 @@ const LendoCustomerList = () => {
   })
   const [actionText, setActionText] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-  const [itemPerPage, setItemPerPage] = useState(10)
+  const [itemPerPage, setItemPerPage] = useState(2)
   const [sort, setSortState] = useState('')
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [tableHeader, setTableHeader] = useState([
@@ -337,10 +337,10 @@ const LendoCustomerList = () => {
   //   const indexOfLastItem = currentPage * itemPerPage;
   //   const indexOfFirstItem = indexOfLastItem - itemPerPage;
   //   const currentItems = data.slice(indexOfFirstItem, indexOfLastItem);
-  const indexOfLastItem = currentPage * itemPerPage
-  const indexOfFirstItem = indexOfLastItem - itemPerPage
-  const currentItems = data && data.slice(indexOfFirstItem, indexOfLastItem)
-  console.log(currentItems)
+  // const indexOfLastItem = currentPage * itemPerPage
+  // const indexOfFirstItem = indexOfLastItem - itemPerPage
+  // const currentItems = data && data.slice(indexOfFirstItem, indexOfLastItem)
+  // console.log(currentItems)
   // Change Page
   const paginate = (pageNumber) => setCurrentPage(pageNumber)
 
@@ -885,8 +885,8 @@ const LendoCustomerList = () => {
                 </DataTableRow>
               </DataTableHead>
               {/*Head*/}
-              {currentItems
-                ? currentItems.map((item) => {
+              {data
+                ? data.map((item) => {
                     return (
                       <DataTableItem key={item?.client_id}>
                         <DataTableRow className="nk-tb-col-check">
@@ -1086,10 +1086,10 @@ const LendoCustomerList = () => {
                 : null}
             </DataTableBody>
             <div className="card-inner">
-              {currentItems && currentItems.length > 0 ? (
+              {data && data.length > 0 ? (
                 <PaginationComponent
                   itemPerPage={itemPerPage}
-                  totalItems={data && data.length}
+                  totalItems={dataTest?.totalItems}
                   paginate={paginate}
                   currentPage={currentPage}
                 />
