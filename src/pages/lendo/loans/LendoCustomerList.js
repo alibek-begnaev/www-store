@@ -73,7 +73,7 @@ const LendoLoansList = () => {
   })
   const [actionText, setActionText] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-  const [itemPerPage, setItemPerPage] = useState(2)
+  const [itemPerPage, setItemPerPage] = useState(10)
   const [sort, setSortState] = useState('')
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [tableHeader, setTableHeader] = useState([
@@ -124,7 +124,7 @@ const LendoLoansList = () => {
   const fetchData = () => {
     dataInstance
       .get(
-        `/api/v1/lendo-admin/get-customer-by-pagination?page=${
+        `/api/v1/lendo-admin/get-loan-application-by-pagination?page=${
           currentPage - 1
         }&size=${itemPerPage}`
       )
