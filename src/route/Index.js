@@ -3,7 +3,7 @@ import { Routes, Route, useLocation, Navigate } from 'react-router-dom'
 import { CustomerProvider } from '../pages/panel/e-commerce/customer/CustomerContext'
 import { ProductContextProvider } from '../pages/pre-built/products/ProductContext'
 import { UserContextProvider } from '../pages/pre-built/user-manage/UserContext'
-import { LendoContextProvider } from '../pages/pre-built/user-manage/LendoContext'
+import { LendoContextProvider } from '../pages/lendo/LendoContext'
 import { useCookies } from 'react-cookie'
 
 import Homepage from '../pages/Homepage'
@@ -135,7 +135,8 @@ import Success from '../pages/auth/Success'
 
 import Layout from '../layout/Index'
 import LayoutNoSidebar from '../layout/Index-nosidebar'
-import LendoCustomerList from '../pages/pre-built/user-manage/LendoCustomerList'
+import LendoCustomerList from '../pages/lendo/customer/LendoCustomerList'
+import LendoLoansList from '../pages/lendo/loans/LendoCustomerList'
 
 // const Blank = lazy(() => import('../pages/others/Blank'))
 // const Faq = lazy(() => import('../pages/others/Faq'))
@@ -332,21 +333,20 @@ const Router = () => {
           <Route path="orders" element={<EcomOrder />}></Route>
           <Route path="products" element={<EcomProducts />}></Route>
           <Route path="support" element={<EcomSupport />}></Route>
-          <Route path="settings" element={<EcomSettings />}></Route>y
+          <Route path="settings" element={<EcomSettings />}></Route>
           <Route path="integration" element={<EcomIntegration />}></Route>
           <Route element={<CustomerProvider />}>
-            <Route path="customer" element={<EcomCustomer />}></Route>y
+            <Route path="customer" element={<EcomCustomer />}></Route>
             <Route
               path="customer-details/:customerId"
               element={<EcomCustomerDetails />}
             ></Route>
-            y
           </Route>
         </Route>
         {/*Applications*/}
         <Route element={<LendoContextProvider />}>
           <Route path="lendo/customers" element={<LendoCustomerList />}></Route>
-          <Route path="project-list" element={<ProjectListPage />}></Route>
+          <Route path="lendo/loans" element={<LendoLoansList />}></Route>
         </Route>
 
         {/*Pre-built Pages*/}

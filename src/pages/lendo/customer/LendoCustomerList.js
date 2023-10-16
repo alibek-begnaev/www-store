@@ -2,7 +2,11 @@ import React, { useState, useEffect, useContext } from 'react'
 import Content from '../../../layout/content/Content'
 import Head from '../../../layout/head/Head'
 import { findUpper } from '../../../utils/Utils'
-import { userData, filterRole, filterStatus } from './UserData'
+import {
+  userData,
+  filterRole,
+  filterStatus,
+} from '../../pre-built/user-manage/UserData'
 import {
   Dropdown,
   DropdownMenu,
@@ -33,9 +37,9 @@ import {
   TooltipComponent,
 } from '../../../components/Component'
 import { Link } from 'react-router-dom'
-import { LendoContext } from './LendoContext'
-import EditModal from './EditModal'
-import AddModal from './AddModal'
+import { LendoContext } from '../LendoContext'
+import EditModal from '../../pre-built/user-manage/EditModal'
+import AddModal from '../../pre-built/user-manage/AddModal'
 import { bulkActionOptions } from '../../../utils/Utils'
 import dataInstance from '../../../utils/axios'
 import { useCookies } from 'react-cookie'
