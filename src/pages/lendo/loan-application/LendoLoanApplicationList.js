@@ -160,10 +160,7 @@ const LendoLoanApplicationList = () => {
               checked: false,
             }))
           )
-          setDataTest({
-            totalItems: res?.data?.totalItems,
-            totalPages: res?.data?.totalPages,
-          })
+
           setLoader(false)
         })
         .catch((error) => console.log(error))
@@ -350,10 +347,10 @@ const LendoLoanApplicationList = () => {
           <BlockBetween>
             <BlockHeadContent>
               <BlockTitle tag="h3" page>
-                Users Lists
+                Application List
               </BlockTitle>
               <BlockDes className="text-soft">
-                <p>You have total 2,595 users.</p>
+                <p>You have total {dataTest?.totalItems} applications.</p>
               </BlockDes>
             </BlockHeadContent>
             <BlockHeadContent>

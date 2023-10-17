@@ -166,10 +166,7 @@ const LendoCustomerList = () => {
               checked: false,
             }))
           )
-          setDataTest({
-            totalItems: res?.data?.totalItems,
-            totalPages: res?.data?.totalPages,
-          })
+
           setLoader(false)
         })
         .catch((error) => console.log(error))
@@ -403,7 +400,7 @@ const LendoCustomerList = () => {
                 Users Lists
               </BlockTitle>
               <BlockDes className="text-soft">
-                <p>You have total 2,595 users.</p>
+                <p>You have total {dataTest?.totalItems} users.</p>
               </BlockDes>
             </BlockHeadContent>
             <BlockHeadContent>
