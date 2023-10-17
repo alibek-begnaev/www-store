@@ -136,7 +136,7 @@ import Success from '../pages/auth/Success'
 import Layout from '../layout/Index'
 import LayoutNoSidebar from '../layout/Index-nosidebar'
 import LendoCustomerList from '../pages/lendo/customer/LendoCustomerList'
-import LendoLoansList from '../pages/lendo/loans/LendoCustomerList'
+import LendoLoanApplicationList from '../pages/lendo/loan-application/LendoLoanApplicationList'
 
 // const Blank = lazy(() => import('../pages/others/Blank'))
 // const Faq = lazy(() => import('../pages/others/Faq'))
@@ -346,7 +346,10 @@ const Router = () => {
         {/*Applications*/}
         <Route element={<LendoContextProvider />}>
           <Route path="lendo/customers" element={<LendoCustomerList />}></Route>
-          <Route path="lendo/loans" element={<LendoLoansList />}></Route>
+          <Route
+            path="/lendo/application/:pinfl?"
+            element={<LendoLoanApplicationList />}
+          ></Route>
         </Route>
 
         {/*Pre-built Pages*/}

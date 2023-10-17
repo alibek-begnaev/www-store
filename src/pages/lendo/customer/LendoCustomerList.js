@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useEffect, useContext, useCallback } from 'react'
 import Content from '../../../layout/content/Content'
 import Head from '../../../layout/head/Head'
 import { findUpper } from '../../../utils/Utils'
@@ -37,7 +37,7 @@ import {
   TooltipComponent,
 } from '../../../components/Component'
 import { Link } from 'react-router-dom'
-import { LendoContext } from '../LendoContext'
+import { LendoContext, Loader } from '../LendoContext'
 import EditModal from '../../pre-built/user-manage/EditModal'
 import AddModal from '../../pre-built/user-manage/AddModal'
 import { bulkActionOptions } from '../../../utils/Utils'
@@ -45,6 +45,7 @@ import dataInstance from '../../../utils/axios'
 import { useCookies } from 'react-cookie'
 const LendoCustomerList = () => {
   const { contextData } = useContext(LendoContext)
+  const [loader, setLoader] = useContext(Loader)
   const [data, setData] = contextData
 
   const [sm, updateSm] = useState(false)
@@ -73,7 +74,7 @@ const LendoCustomerList = () => {
   })
   const [actionText, setActionText] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-  const [itemPerPage, setItemPerPage] = useState(2)
+  const [itemPerPage, setItemPerPage] = useState(10)
   const [sort, setSortState] = useState('')
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [tableHeader, setTableHeader] = useState([
@@ -121,10 +122,11 @@ const LendoCustomerList = () => {
       setData([...sortedData])
     }
   }
-  const fetchData = () => {
+  const fetchData = useCallback(() => {
+    setLoader(true)
     dataInstance
       .get(
-        `/api/v1/lendo-admin/get-customer-by-pagination?page=${
+        `/api/v1/lendo-admin/customer/get-customer-by-pagination?page=${
           currentPage - 1
         }&size=${itemPerPage}`
       )
@@ -139,21 +141,23 @@ const LendoCustomerList = () => {
           totalItems: res?.data?.totalItems,
           totalPages: res?.data?.totalPages,
         })
+        setLoader(false)
       })
-      .catch((error) => console.log(error))
-  }
-  // unselects the data on mount
-  useEffect(() => {
-    fetchData()
-  }, [currentPage, itemPerPage]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Changing state value when searching name
-  useEffect(() => {
-    if (onSearchText !== '' && onSearchText.trim().length === 8) {
+      .catch((error) => {
+        console.log(error)
+        setLoader(false)
+      })
+  }, [currentPage, itemPerPage, setData, setLoader])
+  const fetchDataByClientCode = useCallback(
+    (searchedText) => {
+      setLoader(true)
       dataInstance
         .get(
-          '/api/v1/lendo-admin/get-customer-by-clientCode/' +
-            onSearchText.trim()
+          '/api/v1/lendo-admin/customer/' +
+            (searchedText.length === 8
+              ? 'get-customer-by-clientCode/'
+              : 'get-customer-by-pnfl/') +
+            searchedText
         )
         .then((res) => {
           setData(
@@ -166,8 +170,48 @@ const LendoCustomerList = () => {
             totalItems: res?.data?.totalItems,
             totalPages: res?.data?.totalPages,
           })
+          setLoader(false)
         })
         .catch((error) => console.log(error))
+    },
+    [setData, setLoader]
+  )
+  // const fetchDataByPinfl = useCallback(
+  //   (clientCode) => {
+  //     setLoader(true)
+  //     dataInstance
+  //       .get(
+  //         '/api/v1/lendo-admin/customer/get-customer-by-pnfl/' +
+  //           clientCode
+  //       )
+  //       .then((res) => {
+  //         setData(
+  //           res?.data?.done.data.map((item) => ({
+  //             ...item,
+  //             checked: false,
+  //           }))
+  //         )
+  //         setDataTest({
+  //           totalItems: res?.data?.totalItems,
+  //           totalPages: res?.data?.totalPages,
+  //         })
+  //         setLoader(false)
+  //       })
+  //       .catch((error) => console.log(error))
+  //   },
+  //   [setData, setLoader]
+  // )
+  // unselects the data on mount
+  // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Changing state value when searching name
+  useEffect(() => {
+    setLoader(true)
+    if (
+      onSearchText !== '' &&
+      (onSearchText.trim().length === 8 || onSearchText.trim().length === 14)
+    ) {
+      fetchDataByClientCode(onSearchText.trim())
     } else if (onSearchText.length === 0) {
       fetchData()
     }
@@ -186,7 +230,7 @@ const LendoCustomerList = () => {
     //  else {
     //     setDataTest([...dataTest])
     // }
-  }, [onSearchText, setData])
+  }, [fetchData, fetchDataByClientCode, onSearchText, setData, setLoader])
 
   // onChange function for searching name
   const onFilterChange = (e) => {
@@ -723,30 +767,43 @@ const LendoCustomerList = () => {
                 </div>
               </div>
             </div>
-            <DataTableBody compact>
-              <DataTableHead>
-                <DataTableRow className="nk-tb-col-check">
-                  <div className="custom-control custom-control-sm custom-checkbox notext">
-                    <input
-                      type="checkbox"
-                      className="custom-control-input"
-                      onChange={(e) => selectorCheck(e)}
-                      id="uid"
-                    />
-                    <label
-                      className="custom-control-label"
-                      htmlFor="uid"
-                    ></label>
-                  </div>
-                </DataTableRow>
-                {tableHeader
-                  .filter((a) => a.visible === true)
-                  .map((item, index) => (
-                    <DataTableRow key={index}>
-                      <span className="sub-text">{item.title}</span>
-                    </DataTableRow>
-                  ))}
-                {/* <DataTableRow>
+            {
+              // loader ? (
+              //   <div
+              //     style={{
+              //       width: '100%',
+              //       display: 'flex',
+              //       alignItems: 'center',
+              //       justifyContent: 'center',
+              //     }}
+              //   >
+              //     ...Loading
+              //   </div>
+              // ) :
+              <DataTableBody compact>
+                <DataTableHead>
+                  <DataTableRow className="nk-tb-col-check">
+                    <div className="custom-control custom-control-sm custom-checkbox notext">
+                      <input
+                        type="checkbox"
+                        className="custom-control-input"
+                        onChange={(e) => selectorCheck(e)}
+                        id="uid"
+                      />
+                      <label
+                        className="custom-control-label"
+                        htmlFor="uid"
+                      ></label>
+                    </div>
+                  </DataTableRow>
+                  {tableHeader
+                    .filter((a) => a.visible === true)
+                    .map((item, index) => (
+                      <DataTableRow key={index}>
+                        <span className="sub-text">{item.title}</span>
+                      </DataTableRow>
+                    ))}
+                  {/* <DataTableRow>
                                     <span className="sub-text">User</span>
                                 </DataTableRow>
                                 <DataTableRow size="sm">
@@ -775,54 +832,51 @@ const LendoCustomerList = () => {
                                     <span className="sub-text">bxmCode</span>
                                 </DataTableRow> */}
 
-                <DataTableRow className="nk-tb-col-tools text-end">
-                  <div
-                  // style={{
-                  //     overflow: 'hidden',
-                  // }}
-                  >
-                    <UncontrolledButtonDropdown
-                    // toggle={() =>
-                    //     setDropdownOpen(!dropdownOpen)
-                    // }
-                    // isOpen={dropdownOpen}
+                  <DataTableRow className="nk-tb-col-tools text-end">
+                    <div
+                    // style={{
+                    //     overflow: 'hidden',
+                    // }}
                     >
-                      <DropdownToggle
-                        tag="a"
-                        className="btn btn-xs btn-outline-light btn-icon dropdown-toggle"
+                      <UncontrolledButtonDropdown
+                      // toggle={() =>
+                      //     setDropdownOpen(!dropdownOpen)
+                      // }
+                      // isOpen={dropdownOpen}
                       >
-                        <Icon name="plus"></Icon>
-                      </DropdownToggle>
+                        <DropdownToggle
+                          tag="a"
+                          className="btn btn-xs btn-outline-light btn-icon dropdown-toggle"
+                        >
+                          <Icon name="plus"></Icon>
+                        </DropdownToggle>
 
-                      <DropdownMenu
-                        positionFixed={true}
-                        className="dropdown-menu-xs"
-                      >
-                        <ul className="link-tidy sm no-bdr">
-                          {tableHeader
-                            .filter((e, i) => i > 5)
-                            .map((item, index) => (
-                              <li key={index}>
-                                <div className="custom-control custom-control-sm custom-checkbox">
-                                  <input
-                                    type="checkbox"
-                                    className="custom-control-input"
-                                    defaultChecked={item.visible}
-                                    onChange={(e) =>
-                                      onRawSelectChange(e, item.title)
-                                    }
-                                    id={item.title}
-                                  />
-                                  <label
-                                    className="custom-control-label"
-                                    htmlFor={item.title}
-                                  >
-                                    {item.title}
-                                  </label>
-                                </div>
-                              </li>
-                            ))}
-                          {/* <li>
+                        <DropdownMenu className="dropdown-menu-xs">
+                          <ul className="link-tidy sm no-bdr">
+                            {tableHeader
+                              .filter((e, i) => i > 5)
+                              .map((item, index) => (
+                                <li key={index}>
+                                  <div className="custom-control custom-control-sm custom-checkbox">
+                                    <input
+                                      type="checkbox"
+                                      className="custom-control-input"
+                                      defaultChecked={item.visible}
+                                      onChange={(e) =>
+                                        onRawSelectChange(e, item.title)
+                                      }
+                                      id={item.title}
+                                    />
+                                    <label
+                                      className="custom-control-label"
+                                      htmlFor={item.title}
+                                    >
+                                      {item.title}
+                                    </label>
+                                  </div>
+                                </li>
+                              ))}
+                            {/* <li>
                                                     <div className="custom-control custom-control-sm custom-checkbox">
                                                         <input
                                                             type="checkbox"
@@ -882,76 +936,76 @@ const LendoCustomerList = () => {
                                                         </label>
                                                     </div>
                                                 </li> */}
-                        </ul>
-                      </DropdownMenu>
-                    </UncontrolledButtonDropdown>
-                  </div>
-                </DataTableRow>
-              </DataTableHead>
-              {/*Head*/}
-              {data
-                ? data.map((item) => {
-                    return (
-                      <DataTableItem key={item?.client_id}>
-                        <DataTableRow className="nk-tb-col-check">
-                          <div className="custom-control custom-control-sm custom-checkbox notext">
-                            <input
-                              type="checkbox"
-                              className="custom-control-input"
-                              defaultChecked={item.checked}
-                              id={item?.client_id + 'uid1'}
-                              key={Math.random()}
-                              onChange={(e) =>
-                                onSelectChange(e, item?.client_id)
-                              }
-                            />
-                            <label
-                              className="custom-control-label"
-                              htmlFor={item?.client_id + 'uid1'}
-                            ></label>
-                          </div>
-                        </DataTableRow>
-                        <DataTableRow>
-                          <Link
-                            to={`${process.env.PUBLIC_URL}/user-details-regular/${item.id}`}
-                          >
-                            <div className="user-card">
-                              <UserAvatar
-                                theme={item.avatarBg}
-                                className="xs"
-                                text={findUpper(item.name)}
-                                image={item.image}
-                              ></UserAvatar>
-                              <div className="user-name">
-                                <span className="tb-lead">
-                                  {item.name +
-                                    ' ' +
-                                    item.family_name +
-                                    ' ' +
-                                    item.patronymic}
-                                </span>
-                              </div>
+                          </ul>
+                        </DropdownMenu>
+                      </UncontrolledButtonDropdown>
+                    </div>
+                  </DataTableRow>
+                </DataTableHead>
+                {/*Head*/}
+                {data
+                  ? data.map((item, index) => {
+                      return (
+                        <DataTableItem key={index}>
+                          <DataTableRow className="nk-tb-col-check">
+                            <div className="custom-control custom-control-sm custom-checkbox notext">
+                              <input
+                                type="checkbox"
+                                className="custom-control-input"
+                                defaultChecked={item.checked}
+                                id={item?.client_id + 'uid1'}
+                                key={Math.random()}
+                                onChange={(e) =>
+                                  onSelectChange(e, item?.client_id)
+                                }
+                              />
+                              <label
+                                className="custom-control-label"
+                                htmlFor={item?.client_id + 'uid1'}
+                              ></label>
                             </div>
-                          </Link>
-                        </DataTableRow>
-                        <DataTableRow>
-                          <span>
-                            {item.document_serial + item.document_number}
-                          </span>
-                        </DataTableRow>
-                        <DataTableRow>
-                          <span>{item.pinfl}</span>
-                        </DataTableRow>
-                        <DataTableRow>
-                          <span>{'+' + item.phone}</span>
-                        </DataTableRow>
-                        <DataTableRow>
-                          <span>{item.birth_date}</span>
-                        </DataTableRow>
-                        <DataTableRow>
-                          <span>{item.email}</span>
-                        </DataTableRow>
-                        {/* <DataTableRow size="lg">
+                          </DataTableRow>
+                          <DataTableRow>
+                            <Link
+                              to={`${process.env.PUBLIC_URL}/lendo/application/${item.pinfl}`}
+                            >
+                              <div className="user-card">
+                                <UserAvatar
+                                  theme={item.avatarBg}
+                                  className="xs"
+                                  text={findUpper(item.name)}
+                                  image={item.image}
+                                ></UserAvatar>
+                                <div className="user-name">
+                                  <span className="tb-lead">
+                                    {item.name +
+                                      ' ' +
+                                      item.family_name +
+                                      ' ' +
+                                      item.patronymic}
+                                  </span>
+                                </div>
+                              </div>
+                            </Link>
+                          </DataTableRow>
+                          <DataTableRow>
+                            <span>
+                              {item.document_serial + item.document_number}
+                            </span>
+                          </DataTableRow>
+                          <DataTableRow>
+                            <span>{item.pinfl}</span>
+                          </DataTableRow>
+                          <DataTableRow>
+                            <span>{'+' + item.phone}</span>
+                          </DataTableRow>
+                          <DataTableRow>
+                            <span>{item.birth_date}</span>
+                          </DataTableRow>
+                          <DataTableRow>
+                            <span>{item.email}</span>
+                          </DataTableRow>
+                          {/* <DataTableRow size="lg">
                                                   <ul className="list-status">
                                                       <li>
                                                           <Icon
@@ -978,10 +1032,10 @@ const LendoCustomerList = () => {
                                                       </li>
                                                   </ul>
                                               </DataTableRow> */}
-                        {/* <DataTableRow size="lg">
+                          {/* <DataTableRow size="lg">
                                                   <span>{item.lastLogin}</span>
                                               </DataTableRow> */}
-                        {/* <DataTableRow>
+                          {/* <DataTableRow>
                                                   <span
                                                       className={`tb-status text-${
                                                           item.status ===
@@ -997,98 +1051,100 @@ const LendoCustomerList = () => {
                                                   </span>
                                               </DataTableRow> */}
 
-                        {tableHeader
-                          .filter((e, i) => i > 5 && e.visible)
-                          .map((el, index) => (
-                            <DataTableRow key={index}>
-                              <span>{item[el.key]}</span>
-                            </DataTableRow>
-                          ))}
+                          {tableHeader
+                            .filter((e, i) => i > 5 && e.visible)
+                            .map((el, index) => (
+                              <DataTableRow key={index}>
+                                <span>{item[el.key]}</span>
+                              </DataTableRow>
+                            ))}
 
-                        <DataTableRow className="nk-tb-col-tools">
-                          <ul className="nk-tb-actions gx-1">
-                            <li
-                              className="nk-tb-action-hidden"
-                              onClick={() => onEditClick(item.id)}
-                            >
-                              <TooltipComponent
-                                tag="a"
-                                containerClassName="btn btn-trigger btn-icon"
-                                id={'edit' + item.id}
-                                icon="edit-alt-fill"
-                                direction="top"
-                                text="Edit"
-                              />
-                            </li>
-                            {item.status !== 'Suspend' && (
-                              <React.Fragment>
-                                <li
-                                  className="nk-tb-action-hidden"
-                                  onClick={() => suspendUser(item.id)}
-                                >
-                                  <TooltipComponent
-                                    tag="a"
-                                    containerClassName="btn btn-trigger btn-icon"
-                                    id={'suspend' + item.id}
-                                    icon="user-cross-fill"
-                                    direction="top"
-                                    text="Suspend"
-                                  />
-                                </li>
-                              </React.Fragment>
-                            )}
-                            <li>
-                              <UncontrolledDropdown>
-                                <DropdownToggle
+                          <DataTableRow className="nk-tb-col-tools">
+                            <ul className="nk-tb-actions gx-1">
+                              <li
+                                className="nk-tb-action-hidden"
+                                onClick={() => onEditClick(item.id)}
+                              >
+                                <TooltipComponent
                                   tag="a"
-                                  className="dropdown-toggle btn btn-icon btn-trigger"
-                                >
-                                  <Icon name="more-h"></Icon>
-                                </DropdownToggle>
-                                <DropdownMenu end>
-                                  <ul className="link-list-opt no-bdr">
-                                    <li onClick={() => onEditClick(item.id)}>
-                                      <DropdownItem
-                                        tag="a"
-                                        href="#edit"
-                                        onClick={(ev) => {
-                                          ev.preventDefault()
-                                        }}
-                                      >
-                                        <Icon name="edit"></Icon>
-                                        <span>Edit</span>
-                                      </DropdownItem>
-                                    </li>
-                                    {item.status !== 'Suspend' && (
-                                      <React.Fragment>
-                                        <li className="divider"></li>
-                                        <li
-                                          onClick={() => suspendUser(item.id)}
+                                  containerClassName="btn btn-trigger btn-icon"
+                                  id={'edit' + item.id}
+                                  icon="edit-alt-fill"
+                                  direction="top"
+                                  text="Edit"
+                                />
+                              </li>
+                              {item.status !== 'Suspend' && (
+                                <React.Fragment>
+                                  <li
+                                    className="nk-tb-action-hidden"
+                                    onClick={() => suspendUser(item.id)}
+                                  >
+                                    <TooltipComponent
+                                      tag="a"
+                                      containerClassName="btn btn-trigger btn-icon"
+                                      id={'suspend' + item.id}
+                                      icon="user-cross-fill"
+                                      direction="top"
+                                      text="Suspend"
+                                    />
+                                  </li>
+                                </React.Fragment>
+                              )}
+                              <li>
+                                <UncontrolledDropdown>
+                                  <DropdownToggle
+                                    tag="a"
+                                    className="dropdown-toggle btn btn-icon btn-trigger"
+                                  >
+                                    <Icon name="more-h"></Icon>
+                                  </DropdownToggle>
+                                  <DropdownMenu end>
+                                    <ul className="link-list-opt no-bdr">
+                                      <li onClick={() => onEditClick(item.id)}>
+                                        <DropdownItem
+                                          tag="a"
+                                          href="#edit"
+                                          onClick={(ev) => {
+                                            ev.preventDefault()
+                                          }}
                                         >
-                                          <DropdownItem
-                                            tag="a"
-                                            href="#suspend"
-                                            onClick={(ev) => {
-                                              ev.preventDefault()
-                                            }}
+                                          <Icon name="edit"></Icon>
+                                          <span>Edit</span>
+                                        </DropdownItem>
+                                      </li>
+                                      {item.status !== 'Suspend' && (
+                                        <React.Fragment>
+                                          <li className="divider"></li>
+                                          <li
+                                            onClick={() => suspendUser(item.id)}
                                           >
-                                            <Icon name="na"></Icon>
-                                            <span>Suspend User</span>
-                                          </DropdownItem>
-                                        </li>
-                                      </React.Fragment>
-                                    )}
-                                  </ul>
-                                </DropdownMenu>
-                              </UncontrolledDropdown>
-                            </li>
-                          </ul>
-                        </DataTableRow>
-                      </DataTableItem>
-                    )
-                  })
-                : null}
-            </DataTableBody>
+                                            <DropdownItem
+                                              tag="a"
+                                              href="#suspend"
+                                              onClick={(ev) => {
+                                                ev.preventDefault()
+                                              }}
+                                            >
+                                              <Icon name="na"></Icon>
+                                              <span>Suspend User</span>
+                                            </DropdownItem>
+                                          </li>
+                                        </React.Fragment>
+                                      )}
+                                    </ul>
+                                  </DropdownMenu>
+                                </UncontrolledDropdown>
+                              </li>
+                            </ul>
+                          </DataTableRow>
+                        </DataTableItem>
+                      )
+                    })
+                  : null}
+              </DataTableBody>
+            }
+
             <div className="card-inner">
               {data && data.length > 0 ? (
                 <PaginationComponent
