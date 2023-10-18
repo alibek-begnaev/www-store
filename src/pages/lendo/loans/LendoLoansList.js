@@ -44,7 +44,7 @@ import AddModal from '../../pre-built/user-manage/AddModal'
 import { bulkActionOptions } from '../../../utils/Utils'
 import dataInstance from '../../../utils/axios'
 import { useCookies } from 'react-cookie'
-const LendoLoanApplicationList = () => {
+const LendoLoansList = () => {
   const { contextData } = useContext(LendoContext)
   const [data, setData] = contextData
   const [cookie, setCookie, removeCookie] = useCookies()
@@ -82,29 +82,22 @@ const LendoLoanApplicationList = () => {
   const [sort, setSortState] = useState('')
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [tableHeader, setTableHeader] = useState([
-    { title: 'Name', visible: true, key: 'name' },
-    { title: 'Passport', visible: true, key: 'document_serial' },
-    { title: 'Pinfl', visible: true, key: 'pinfl' },
-    { title: 'Phone', visible: true, key: 'phone' },
-    { title: 'Card number', visible: true, key: 'card_number' },
-    { title: 'Card Type', visible: true, key: 'card_type' },
-    { title: 'Birthday', visible: true, key: 'birth_date' },
-    { title: 'State', visible: true, key: 'state' },
+    { title: 'Loan Type', visible: true, key: 'loanLinePurpose' },
+    { title: 'Created date', visible: true, key: 'createdAt' },
+    { title: 'Дата кредитной заявки', visible: true, key: 'claimDate' },
+    { title: 'Status', visible: true, key: 'status' },
+    { title: 'Amount', visible: true, key: 'summClaim' },
+    { title: 'Kredit maqsadi', visible: true, key: 'purposeLending' },
 
+    { title: 'Client Code', visible: false, key: 'clientCode' },
+    { title: 'Client ID', visible: false, key: 'clientId' },
+    { title: 'Client Uid', visible: false, key: 'clientUid' },
     {
-      title: 'Amal qilish muddati',
+      title: 'Muddati',
       visible: false,
-      key: 'document_expire_date',
+      key: 'periodUse',
     },
-    { title: 'Berilgan Sana', visible: false, key: 'document_issue_date' },
-    {
-      title: 'Passport issued place',
-      visible: false,
-      key: 'document_issue_place',
-    },
-    { title: 'Document Region', visible: false, key: 'document_region' },
-
-    { title: 'Address', visible: false, key: 'residence_address' },
+    { title: 'Product Code', visible: false, key: 'productCode' },
   ])
 
   const handleExport = () => {
@@ -126,7 +119,7 @@ const LendoLoanApplicationList = () => {
     setLoader(true)
     dataInstance
       .get(
-        `/api/v1/lendo-admin/app/get-application-by-pagination?page=${
+        `/api/v1/lendo-admin/loan/get-loan-application-by-pagination?page=${
           currentPage - 1
         }&size=${itemPerPage}`
       )
@@ -789,7 +782,7 @@ const LendoLoanApplicationList = () => {
                         <DropdownMenu className="dropdown-menu-xs">
                           <ul className="link-tidy sm no-bdr">
                             {tableHeader
-                              .filter((e, i) => i > 7)
+                              .filter((e, i) => i > 5)
                               .map((item, index) => (
                                 <li key={index}>
                                   <div className="custom-control custom-control-sm custom-checkbox">
@@ -905,52 +898,67 @@ const LendoLoanApplicationList = () => {
                               to={`${process.env.PUBLIC_URL}/lendo/application/${item.pinfl}`}
                             >
                               <div className="user-card">
-                                <UserAvatar
+                                {/* <UserAvatar
                                   theme={item.avatarBg}
                                   className="xs"
-                                  text={findUpper(
-                                    item?.name ? item?.name : ' '
-                                  )}
+                                  //   text={findUpper(item.name)}
                                   image={item.image}
-                                ></UserAvatar>
+                                ></UserAvatar> */}
                                 <div className="user-name">
                                   <span className="tb-lead">
-                                    {item.name +
-                                      ' ' +
-                                      item.family_name +
-                                      ' ' +
-                                      item.patronymic}
+                                    {item.loanLinePurpose}
                                   </span>
                                 </div>
                               </div>
                             </Link>
                           </DataTableRow>
                           <DataTableRow>
-                            <span>
-                              {item.document_serial + item.document_number}
-                            </span>
+                            <span>{item.createdAt}</span>
                           </DataTableRow>
                           <DataTableRow>
-                            <span>{item.pinfl}</span>
+                            <span>{item.claimDate}</span>
                           </DataTableRow>
                           <DataTableRow>
-                            <span>{'+' + item.phone}</span>
+                            <div
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                              }}
+                            >
+                              <span
+                                className={`tb-status text-${
+                                  item.status === 'DONE' ||
+                                  item.status === 'SEND'
+                                    ? 'success'
+                                    : item.status === 'CREATE'
+                                    ? 'warning'
+                                    : 'danger'
+                                }`}
+                              >
+                                {item.status}
+                              </span>{' '}
+                              {item.status === 'ERROR' && (
+                                <TooltipComponent
+                                  tag="button"
+                                  onClick={() => alert(item.message)}
+                                  containerClassName="btn btn-trigger btn-icon"
+                                  id={'help-fill' + index}
+                                  icon="help-fill"
+                                  direction="bottom"
+                                  text={item.message}
+                                />
+                              )}
+                            </div>
                           </DataTableRow>
                           <DataTableRow>
-                            <span>{item.card_number}</span>
+                            <span>{item.summClaim}</span>
                           </DataTableRow>
                           <DataTableRow>
-                            <span>{item.card_type}</span>
-                          </DataTableRow>
-                          <DataTableRow>
-                            <span>{item.birth_date}</span>
-                          </DataTableRow>
-                          <DataTableRow>
-                            <span>{item.state}</span>
+                            <span>{item.purposeLending}</span>
                           </DataTableRow>
 
                           {tableHeader
-                            .filter((e, i) => i > 7 && e.visible)
+                            .filter((e, i) => i > 5 && e.visible)
                             .map((el, index) => (
                               <DataTableRow key={index}>
                                 <span>{item[el.key]}</span>
@@ -1080,4 +1088,4 @@ const LendoLoanApplicationList = () => {
     </React.Fragment>
   )
 }
-export default LendoLoanApplicationList
+export default LendoLoansList

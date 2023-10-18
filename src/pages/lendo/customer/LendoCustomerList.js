@@ -970,7 +970,9 @@ const LendoCustomerList = () => {
                                 <UserAvatar
                                   theme={item.avatarBg}
                                   className="xs"
-                                  text={findUpper(item.name)}
+                                  text={findUpper(
+                                    item?.name ? item?.name : ' '
+                                  )}
                                   image={item.image}
                                 ></UserAvatar>
                                 <div className="user-name">
