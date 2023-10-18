@@ -44,6 +44,8 @@ import AddModal from '../../pre-built/user-manage/AddModal'
 import { bulkActionOptions } from '../../../utils/Utils'
 import dataInstance from '../../../utils/axios'
 import { useCookies } from 'react-cookie'
+import { useSessionStorage } from 'usehooks-ts'
+
 const LendoLoansList = () => {
   const { contextData } = useContext(LendoContext)
   const [data, setData] = contextData
@@ -81,25 +83,34 @@ const LendoLoansList = () => {
   const [itemPerPage, setItemPerPage] = useState(10)
   const [sort, setSortState] = useState('')
   const [dropdownOpen, setDropdownOpen] = useState(false)
-  const [tableHeader, setTableHeader] = useState([
-    { title: 'Loan Type', visible: true, key: 'loanLinePurpose' },
-    { title: 'Created date', visible: true, key: 'createdAt' },
-    { title: 'Дата кредитной заявки', visible: true, key: 'claimDate' },
-    { title: 'Status', visible: true, key: 'status' },
-    { title: 'Amount', visible: true, key: 'summClaim' },
-    { title: 'Kredit maqsadi', visible: true, key: 'purposeLending' },
+  const [tableHeader, setTableHeader] = useSessionStorage(
+    'lendoLoantableHeader',
+    [
+      { title: 'Loan Type', visible: true, key: 'loanLinePurpose' },
+      { title: 'Created date', visible: true, key: 'createdAt' },
+      { title: 'Дата кредитной заявки', visible: true, key: 'claimDate' },
+      { title: 'Status', visible: true, key: 'status' },
+      { title: 'Amount', visible: true, key: 'summClaim' },
+      { title: 'Kredit maqsadi', visible: true, key: 'purposeLending' },
 
-    { title: 'Client Code', visible: false, key: 'clientCode' },
-    { title: 'Client ID', visible: false, key: 'clientId' },
-    { title: 'Client Uid', visible: false, key: 'clientUid' },
-    {
-      title: 'Muddati',
-      visible: false,
-      key: 'periodUse',
-    },
-    { title: 'Product Code', visible: false, key: 'productCode' },
-  ])
-
+      { title: 'Client Code', visible: false, key: 'clientCode' },
+      { title: 'Client ID', visible: false, key: 'clientId' },
+      { title: 'Client Uid', visible: false, key: 'clientUid' },
+      {
+        title: 'Muddati',
+        visible: false,
+        key: 'periodUse',
+      },
+      { title: 'Product Code', visible: false, key: 'productCode' },
+    ]
+  )
+  //   const [tableHeader, setTableHeader] = useState()
+  //   useEffect(() => {
+  //     if (tableHeader && !cookie.filter) {
+  //       setCookie('filter', tableHeader, { path: '/lendo' })
+  //       console.log('filter')
+  //     }
+  //   }, [])
   const handleExport = () => {
     removeCookie('token')
   }
@@ -168,7 +179,7 @@ const LendoLoansList = () => {
     } else if (onSearchText.length === 0) {
       fetchData()
     }
-  }, [fetchData, fetchDataByPinfl, onSearchText, pinfl, setData])
+  }, [fetchData, fetchDataByPinfl, onSearchText, pinfl])
 
   // onChange function for searching name
   const onFilterChange = (e) => {
@@ -187,6 +198,7 @@ const LendoLoansList = () => {
     let index = newData.findIndex((item) => item.title === title)
     newData[index].visible = e.currentTarget.checked
     setTableHeader([...newData])
+    // setCookie('filter', [...newData], { path: '/lendo' })
   }
   // function to set the action to be taken in table header
   const onActionText = (e) => {
@@ -967,7 +979,7 @@ const LendoLoansList = () => {
 
                           <DataTableRow className="nk-tb-col-tools">
                             <ul className="nk-tb-actions gx-1">
-                              <li
+                              {/* <li
                                 className="nk-tb-action-hidden"
                                 onClick={() => onEditClick(item.id)}
                               >
@@ -996,7 +1008,7 @@ const LendoLoansList = () => {
                                     />
                                   </li>
                                 </React.Fragment>
-                              )}
+                              )} */}
                               <li>
                                 <UncontrolledDropdown>
                                   <DropdownToggle

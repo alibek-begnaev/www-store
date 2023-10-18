@@ -44,6 +44,8 @@ import AddModal from '../../pre-built/user-manage/AddModal'
 import { bulkActionOptions } from '../../../utils/Utils'
 import dataInstance from '../../../utils/axios'
 import { useCookies } from 'react-cookie'
+import { useSessionStorage } from 'usehooks-ts'
+
 const LendoLoanApplicationList = () => {
   const { contextData } = useContext(LendoContext)
   const [data, setData] = contextData
@@ -81,31 +83,34 @@ const LendoLoanApplicationList = () => {
   const [itemPerPage, setItemPerPage] = useState(10)
   const [sort, setSortState] = useState('')
   const [dropdownOpen, setDropdownOpen] = useState(false)
-  const [tableHeader, setTableHeader] = useState([
-    { title: 'Name', visible: true, key: 'name' },
-    { title: 'Passport', visible: true, key: 'document_serial' },
-    { title: 'Pinfl', visible: true, key: 'pinfl' },
-    { title: 'Phone', visible: true, key: 'phone' },
-    { title: 'Card number', visible: true, key: 'card_number' },
-    { title: 'Card Type', visible: true, key: 'card_type' },
-    { title: 'Birthday', visible: true, key: 'birth_date' },
-    { title: 'State', visible: true, key: 'state' },
+  const [tableHeader, setTableHeader] = useSessionStorage(
+    'lendoApplicationtableHeader',
+    [
+      { title: 'Name', visible: true, key: 'name' },
+      { title: 'Passport', visible: true, key: 'document_serial' },
+      { title: 'Pinfl', visible: true, key: 'pinfl' },
+      { title: 'Phone', visible: true, key: 'phone' },
+      { title: 'Card number', visible: true, key: 'card_number' },
+      { title: 'Card Type', visible: true, key: 'card_type' },
+      { title: 'Birthday', visible: true, key: 'birth_date' },
+      { title: 'State', visible: true, key: 'state' },
 
-    {
-      title: 'Amal qilish muddati',
-      visible: false,
-      key: 'document_expire_date',
-    },
-    { title: 'Berilgan Sana', visible: false, key: 'document_issue_date' },
-    {
-      title: 'Passport issued place',
-      visible: false,
-      key: 'document_issue_place',
-    },
-    { title: 'Document Region', visible: false, key: 'document_region' },
+      {
+        title: 'Amal qilish muddati',
+        visible: false,
+        key: 'document_expire_date',
+      },
+      { title: 'Berilgan Sana', visible: false, key: 'document_issue_date' },
+      {
+        title: 'Passport issued place',
+        visible: false,
+        key: 'document_issue_place',
+      },
+      { title: 'Document Region', visible: false, key: 'document_region' },
 
-    { title: 'Address', visible: false, key: 'residence_address' },
-  ])
+      { title: 'Address', visible: false, key: 'residence_address' },
+    ]
+  )
 
   const handleExport = () => {
     removeCookie('token')
