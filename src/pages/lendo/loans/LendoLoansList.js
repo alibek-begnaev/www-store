@@ -188,7 +188,7 @@ const LendoLoansList = () => {
   // function to change the selected property of an item
   const onSelectChange = (e, id) => {
     let newData = data
-    let index = newData.findIndex((item) => item.client_id === id)
+    let index = newData.findIndex((item) => item.id === id)
     newData[index].checked = e.currentTarget.checked
     setData([...newData])
   }
@@ -893,15 +893,13 @@ const LendoLoansList = () => {
                                 type="checkbox"
                                 className="custom-control-input"
                                 defaultChecked={item.checked}
-                                id={item?.client_id + 'uid1'}
+                                id={item?.id + 'uid1'}
                                 key={Math.random()}
-                                onChange={(e) =>
-                                  onSelectChange(e, item?.client_id)
-                                }
+                                onChange={(e) => onSelectChange(e, item?.id)}
                               />
                               <label
                                 className="custom-control-label"
-                                htmlFor={item?.client_id + 'uid1'}
+                                htmlFor={item?.id + 'uid1'}
                               ></label>
                             </div>
                           </DataTableRow>
