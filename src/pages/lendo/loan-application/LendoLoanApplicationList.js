@@ -716,10 +716,18 @@ const LendoLoanApplicationList = () => {
                 </div>
               </div>
             </div>
-            {
-              // loader ? (
-              //   <div>...Loading</div>
-              // ) :
+            {loader ? (
+              <div
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                ...Loading
+              </div>
+            ) : (
               <DataTableBody compact>
                 <DataTableHead>
                   <DataTableRow className="nk-tb-col-check">
@@ -1044,7 +1052,7 @@ const LendoLoanApplicationList = () => {
                     })
                   : null}
               </DataTableBody>
-            }
+            )}
 
             <div className="card-inner">
               {data && data.length > 0 ? (

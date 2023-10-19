@@ -721,10 +721,18 @@ const LendoLoansList = () => {
                 </div>
               </div>
             </div>
-            {
-              // loader ? (
-              //   <div>...Loading</div>
-              // ) :
+            {loader ? (
+              <div
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                ...Loading
+              </div>
+            ) : (
               <DataTableBody compact>
                 <DataTableHead>
                   <DataTableRow className="nk-tb-col-check">
@@ -748,143 +756,44 @@ const LendoLoansList = () => {
                         <span className="sub-text">{item.title}</span>
                       </DataTableRow>
                     ))}
-                  {/* <DataTableRow>
-                                    <span className="sub-text">User</span>
-                                </DataTableRow>
-                                <DataTableRow size="sm">
-                                    <span className="sub-text">Email</span>
-                                </DataTableRow>
-                                <DataTableRow size="md">
-                                    <span className="sub-text">Phone</span>
-                                </DataTableRow>
-                                <DataTableRow size="md">
-                                    <span className="sub-text">
-                                        birth_country
-                                    </span>
-                                </DataTableRow>
-                                <DataTableRow>
-                                    <span className="sub-text">Status</span>
-                                </DataTableRow>
-                                <DataTableRow size="lg">
-                                    <span className="sub-text">birth_date</span>
-                                </DataTableRow>
-                                <DataTableRow size="lg">
-                                    <span className="sub-text">
-                                        birth_place
-                                    </span>
-                                </DataTableRow>
-                                <DataTableRow size="lg">
-                                    <span className="sub-text">bxmCode</span>
-                                </DataTableRow> */}
 
                   <DataTableRow className="nk-tb-col-tools text-end">
-                    <div
-                    // style={{
-                    //     overflow: 'hidden',
-                    // }}
-                    >
-                      <UncontrolledButtonDropdown
-                      // toggle={() =>
-                      //     setDropdownOpen(!dropdownOpen)
-                      // }
-                      // isOpen={dropdownOpen}
+                    <UncontrolledButtonDropdown>
+                      <DropdownToggle
+                        tag="a"
+                        className="btn btn-xs btn-outline-light btn-icon dropdown-toggle"
                       >
-                        <DropdownToggle
-                          tag="a"
-                          className="btn btn-xs btn-outline-light btn-icon dropdown-toggle"
-                        >
-                          <Icon name="plus"></Icon>
-                        </DropdownToggle>
+                        <Icon name="plus"></Icon>
+                      </DropdownToggle>
 
-                        <DropdownMenu className="dropdown-menu-xs">
-                          <ul className="link-tidy sm no-bdr">
-                            {tableHeader
-                              .filter((e, i) => i > 5)
-                              .map((item, index) => (
-                                <li key={index}>
-                                  <div className="custom-control custom-control-sm custom-checkbox">
-                                    <input
-                                      type="checkbox"
-                                      className="custom-control-input"
-                                      defaultChecked={item.visible}
-                                      onChange={(e) =>
-                                        onRawSelectChange(e, item.title)
-                                      }
-                                      id={item.title}
-                                    />
-                                    <label
-                                      className="custom-control-label"
-                                      htmlFor={item.title}
-                                    >
-                                      {item.title}
-                                    </label>
-                                  </div>
-                                </li>
-                              ))}
-                            {/* <li>
-                                                    <div className="custom-control custom-control-sm custom-checkbox">
-                                                        <input
-                                                            type="checkbox"
-                                                            className="custom-control-input"
-                                                            id="bl"
-                                                        />
-                                                        <label
-                                                            className="custom-control-label"
-                                                            htmlFor="bl"
-                                                        >
-                                                            Balance
-                                                        </label>
-                                                    </div>
-                                                </li>
-                                                <li>
-                                                    <div className="custom-control custom-control-sm custom-checkbox">
-                                                        <input
-                                                            type="checkbox"
-                                                            className="custom-control-input"
-                                                            id="ph"
-                                                        />
-                                                        <label
-                                                            className="custom-control-label"
-                                                            htmlFor="ph"
-                                                        >
-                                                            Phone
-                                                        </label>
-                                                    </div>
-                                                </li>
-                                                <li>
-                                                    <div className="custom-control custom-control-sm custom-checkbox">
-                                                        <input
-                                                            type="checkbox"
-                                                            className="custom-control-input"
-                                                            id="vri"
-                                                        />
-                                                        <label
-                                                            className="custom-control-label"
-                                                            htmlFor="vri"
-                                                        >
-                                                            Verified
-                                                        </label>
-                                                    </div>
-                                                </li>
-                                                <li>
-                                                    <div className="custom-control custom-control-sm custom-checkbox">
-                                                        <input
-                                                            type="checkbox"
-                                                            className="custom-control-input"
-                                                            id="st"
-                                                        />
-                                                        <label
-                                                            className="custom-control-label"
-                                                            htmlFor="st"
-                                                        >
-                                                            Status
-                                                        </label>
-                                                    </div>
-                                                </li> */}
-                          </ul>
-                        </DropdownMenu>
-                      </UncontrolledButtonDropdown>
-                    </div>
+                      <DropdownMenu className="dropdown-menu-xs">
+                        <ul className="link-tidy sm no-bdr">
+                          {tableHeader
+                            .filter((e, i) => i > 5)
+                            .map((item, index) => (
+                              <li key={index}>
+                                <div className="custom-control custom-control-sm custom-checkbox">
+                                  <input
+                                    type="checkbox"
+                                    className="custom-control-input"
+                                    defaultChecked={item.visible}
+                                    onChange={(e) =>
+                                      onRawSelectChange(e, item.title)
+                                    }
+                                    id={item.title}
+                                  />
+                                  <label
+                                    className="custom-control-label"
+                                    htmlFor={item.title}
+                                  >
+                                    {item.title}
+                                  </label>
+                                </div>
+                              </li>
+                            ))}
+                        </ul>
+                      </DropdownMenu>
+                    </UncontrolledButtonDropdown>
                   </DataTableRow>
                 </DataTableHead>
                 {/*Head*/}
@@ -913,12 +822,6 @@ const LendoLoansList = () => {
                               to={`${process.env.PUBLIC_URL}/lendo/application/${item.pinfl}`}
                             >
                               <div className="user-card">
-                                {/* <UserAvatar
-                                  theme={item.avatarBg}
-                                  className="xs"
-                                  //   text={findUpper(item.name)}
-                                  image={item.image}
-                                ></UserAvatar> */}
                                 <div className="user-name">
                                   <span className="tb-lead">
                                     {item.loanLinePurpose}
@@ -982,36 +885,6 @@ const LendoLoansList = () => {
 
                           <DataTableRow className="nk-tb-col-tools">
                             <ul className="nk-tb-actions gx-1">
-                              {/* <li
-                                className="nk-tb-action-hidden"
-                                onClick={() => onEditClick(item.id)}
-                              >
-                                <TooltipComponent
-                                  tag="a"
-                                  containerClassName="btn btn-trigger btn-icon"
-                                  id={'edit' + item.id}
-                                  icon="edit-alt-fill"
-                                  direction="top"
-                                  text="Edit"
-                                />
-                              </li>
-                              {item.status !== 'Suspend' && (
-                                <React.Fragment>
-                                  <li
-                                    className="nk-tb-action-hidden"
-                                    onClick={() => suspendUser(item.id)}
-                                  >
-                                    <TooltipComponent
-                                      tag="a"
-                                      containerClassName="btn btn-trigger btn-icon"
-                                      id={'suspend' + item.id}
-                                      icon="user-cross-fill"
-                                      direction="top"
-                                      text="Suspend"
-                                    />
-                                  </li>
-                                </React.Fragment>
-                              )} */}
                               <li>
                                 <UncontrolledDropdown>
                                   <DropdownToggle
@@ -1064,7 +937,7 @@ const LendoLoansList = () => {
                     })
                   : null}
               </DataTableBody>
-            }
+            )}
 
             <div className="card-inner">
               {data && data.length > 0 ? (
@@ -1083,14 +956,6 @@ const LendoLoansList = () => {
           </DataTable>
         </Block>
 
-        <AddModal
-          modal={modal.add}
-          formData={formData}
-          setFormData={setFormData}
-          closeModal={closeModal}
-          onSubmit={onFormSubmit}
-          filterStatus={filterStatus}
-        />
         <ErrorModal
           modal={modal.error}
           closeModal={closeEditModal}
