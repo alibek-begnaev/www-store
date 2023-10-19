@@ -39,7 +39,7 @@ import {
 } from '../../../components/Component'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import { LendoContext, Loader } from '../LendoContext'
-import EditModal from '../../pre-built/user-manage/EditModal'
+import ErrorModal from '../../pre-built/user-manage/ErrorModal'
 import AddModal from '../../pre-built/user-manage/AddModal'
 import { bulkActionOptions } from '../../../utils/Utils'
 import dataInstance from '../../../utils/axios'
@@ -83,6 +83,7 @@ const LendoLoansList = () => {
   const [itemPerPage, setItemPerPage] = useState(10)
   const [sort, setSortState] = useState('')
   const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [errorMessage, setErrorMessage] = useState()
   const [tableHeader, setTableHeader] = useSessionStorage(
     'lendoLoantableHeader',
     [
@@ -278,6 +279,10 @@ const LendoLoansList = () => {
   }
 
   // function that loads the want to editted data
+  const onErrorClick = (message) => {
+    setModal({ error: true }, { add: false }, { edit: false })
+    setErrorMessage(message)
+  }
   const onEditClick = (id) => {
     data.forEach((item) => {
       if (item.id === id) {
@@ -950,7 +955,7 @@ const LendoLoansList = () => {
                               {item.status === 'ERROR' && (
                                 <TooltipComponent
                                   tag="button"
-                                  onClick={() => alert(item.message)}
+                                  onClick={() => onErrorClick(item.message)}
                                   containerClassName="btn btn-trigger btn-icon"
                                   id={'help-fill' + index}
                                   icon="help-fill"
@@ -1086,13 +1091,10 @@ const LendoLoansList = () => {
           onSubmit={onFormSubmit}
           filterStatus={filterStatus}
         />
-        <EditModal
-          modal={modal.edit}
-          formData={editFormData}
-          setFormData={setEditFormData}
+        <ErrorModal
+          modal={modal.error}
           closeModal={closeEditModal}
-          onSubmit={onEditSubmit}
-          filterStatus={filterStatus}
+          message={errorMessage}
         />
       </Content>
     </React.Fragment>
