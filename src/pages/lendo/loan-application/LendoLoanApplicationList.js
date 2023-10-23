@@ -148,7 +148,10 @@ const LendoLoanApplicationList = () => {
         })
         setLoader(false)
       })
-      .catch((error) => console.log(error))
+      .catch((error) => {
+        console.log(error)
+        setLoader(false)
+      })
   }, [currentPage, itemPerPage, setData, setLoader])
   // unselects the data on mount
   const fetchDataByPinfl = useCallback(
@@ -166,7 +169,10 @@ const LendoLoanApplicationList = () => {
 
           setLoader(false)
         })
-        .catch((error) => console.log(error))
+        .catch((error) => {
+          console.log(error)
+          setLoader(false)
+        })
     },
     [setData, setLoader]
   )
