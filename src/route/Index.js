@@ -138,6 +138,8 @@ import LayoutNoSidebar from '../layout/Index-nosidebar'
 import LendoCustomerList from '../pages/lendo/customer/LendoCustomerList'
 import LendoLoanApplicationList from '../pages/lendo/loan-application/LendoLoanApplicationList'
 import LendoLoansList from '../pages/lendo/loans/LendoLoansList'
+import LendoSkoringApplication from '../pages/lendo/skoring-application/Skoring-application'
+import LendoRequest from '../pages/lendo/lendo-request/Lendo-request'
 
 // const Blank = lazy(() => import('../pages/others/Blank'))
 // const Faq = lazy(() => import('../pages/others/Faq'))
@@ -352,6 +354,11 @@ const Router = () => {
             element={<LendoLoanApplicationList />}
           ></Route>
           <Route path="lendo/loans" element={<LendoLoansList />}></Route>
+          <Route
+            path="lendo/skoring-application/:pinfl?"
+            element={<LendoSkoringApplication />}
+          ></Route>
+          <Route path="lendo/lendo-request" element={<LendoRequest />}></Route>
         </Route>
 
         {/*Pre-built Pages*/}

@@ -9,7 +9,6 @@ const PaginationComponent = ({
   currentPage,
 }) => {
   const pageNumbers = []
-
   for (let i = 1; i <= Math.ceil(totalItems / itemPerPage); i++) {
     pageNumbers.push(i)
   }
@@ -50,7 +49,7 @@ const PaginationComponent = ({
   }
 
   let paginationItms = paginationNumber()
-
+  console.log(paginationItms)
   const firstPage = () => {
     paginate(1)
   }

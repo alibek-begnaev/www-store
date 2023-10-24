@@ -39,14 +39,13 @@ import {
 } from '../../../components/Component'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import { LendoContext, Loader } from '../LendoContext'
-import EditModal from '../../pre-built/user-manage/EditModal'
-import AddModal from '../../pre-built/user-manage/AddModal'
+import ErrorModal from '../../pre-built/user-manage/ErrorModal'
 import { bulkActionOptions } from '../../../utils/Utils'
 import dataInstance from '../../../utils/axios'
 import { useCookies } from 'react-cookie'
 import { useSessionStorage } from 'usehooks-ts'
 
-const LendoLoanApplicationList = () => {
+const LendoSkoringApplication = () => {
   const { contextData } = useContext(LendoContext)
   const [data, setData] = contextData
   const [cookie, setCookie, removeCookie] = useCookies()
@@ -83,8 +82,9 @@ const LendoLoanApplicationList = () => {
   const [itemPerPage, setItemPerPage] = useState(10)
   const [sort, setSortState] = useState('')
   const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [errorMessage, setErrorMessage] = useState()
   const [tableHeader, setTableHeader] = useSessionStorage(
-    'lendoApplicationtableHeader',
+    'lendoSkoringApplicationHeader',
     [
       { title: 'Name', visible: true, key: 'name' },
       { title: 'Passport', visible: true, key: 'document_serial' },
@@ -93,7 +93,7 @@ const LendoLoanApplicationList = () => {
       { title: 'Card number', visible: true, key: 'card_number' },
       { title: 'Card Type', visible: true, key: 'card_type' },
       { title: 'Birthday', visible: true, key: 'birth_date' },
-      { title: 'State', visible: true, key: 'state' },
+      { title: 'Status', visible: true, key: 'status' },
 
       {
         title: 'Amal qilish muddati',
@@ -111,7 +111,13 @@ const LendoLoanApplicationList = () => {
       { title: 'Address', visible: false, key: 'residence_address' },
     ]
   )
-
+  //   const [tableHeader, setTableHeader] = useState()
+  //   useEffect(() => {
+  //     if (tableHeader && !cookie.filter) {
+  //       setCookie('filter', tableHeader, { path: '/lendo' })
+  //       console.log('filter')
+  //     }
+  //   }, [])
   const handleExport = () => {
     removeCookie('token')
   }
@@ -167,10 +173,9 @@ const LendoLoanApplicationList = () => {
             }))
           )
           setDataTest({
-            totalItems: res?.data?.totalItems,
+            totalItems: res?.data?.totalItems ? res?.data?.totalItems : 1,
             totalPages: res?.data?.totalPages,
           })
-
           setLoader(false)
         })
         .catch((error) => {
@@ -190,7 +195,7 @@ const LendoLoanApplicationList = () => {
     } else if (onSearchText.length === 0) {
       fetchData()
     }
-  }, [fetchData, fetchDataByPinfl, onSearchText, pinfl, setData])
+  }, [fetchData, fetchDataByPinfl, onSearchText, pinfl])
 
   // onChange function for searching name
   const onFilterChange = (e) => {
@@ -209,6 +214,7 @@ const LendoLoanApplicationList = () => {
     let index = newData.findIndex((item) => item.title === title)
     newData[index].visible = e.currentTarget.checked
     setTableHeader([...newData])
+    // setCookie('filter', [...newData], { path: '/lendo' })
   }
   // function to set the action to be taken in table header
   const onActionText = (e) => {
@@ -288,6 +294,10 @@ const LendoLoanApplicationList = () => {
   }
 
   // function that loads the want to editted data
+  const onErrorClick = (message) => {
+    setModal({ error: true }, { add: false }, { edit: false })
+    setErrorMessage(message)
+  }
   const onEditClick = (id) => {
     data.forEach((item) => {
       if (item.id === id) {
@@ -359,10 +369,10 @@ const LendoLoanApplicationList = () => {
           <BlockBetween>
             <BlockHeadContent>
               <BlockTitle tag="h3" page>
-                Application List
+                Users Lists
               </BlockTitle>
               <BlockDes className="text-soft">
-                <p>You have total {dataTest?.totalItems} applications.</p>
+                <p>You have total {dataTest?.totalItems} users.</p>
               </BlockDes>
             </BlockHeadContent>
             <BlockHeadContent>
@@ -923,7 +933,7 @@ const LendoLoanApplicationList = () => {
                           </DataTableRow>
                           <DataTableRow>
                             <Link
-                              to={`${process.env.PUBLIC_URL}/lendo/application/${item.pinfl}`}
+                              to={`${process.env.PUBLIC_URL}/lendo/skoring-application/${item.pinfl}`}
                             >
                               <div className="user-card">
                                 <UserAvatar
@@ -946,6 +956,7 @@ const LendoLoanApplicationList = () => {
                               </div>
                             </Link>
                           </DataTableRow>
+
                           <DataTableRow>
                             <span>
                               {item.document_serial + item.document_number}
@@ -967,8 +978,83 @@ const LendoLoanApplicationList = () => {
                             <span>{item.birth_date}</span>
                           </DataTableRow>
                           <DataTableRow>
-                            <span>{item.state}</span>
+                            <div
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                              }}
+                            >
+                              {item?.message ? item.message : ''}
+                              {/* <span
+                                className={`tb-status text-${
+                                  item.status === 'DONE' ||
+                                  item.status === 'SEND'
+                                    ? 'success'
+                                    : item.status === 'CREATE'
+                                    ? 'warning'
+                                    : 'danger'
+                                }`}
+                              >
+                                {item.status}
+                              </span>{' '}
+                              {item.status === 'ERROR' && (
+                                <TooltipComponent
+                                  tag="button"
+                                  onClick={() => onErrorClick(item.message)}
+                                  containerClassName="btn btn-trigger btn-icon"
+                                  id={'help-fill' + index}
+                                  icon="help-fill"
+                                  direction="bottom"
+                                  text={item.message}
+                                />
+                              )} */}
+                            </div>
                           </DataTableRow>
+                          {/* <DataTableRow size="lg">
+                                                  <ul className="list-status">
+                                                      <li>
+                                                          <Icon
+                                                              className={`text-${
+                                                                  item.emailStatus ===
+                                                                  'success'
+                                                                      ? 'success'
+                                                                      : item.emailStatus ===
+                                                                        'pending'
+                                                                      ? 'info'
+                                                                      : 'secondary'
+                                                              }`}
+                                                              name={`${
+                                                                  item.emailStatus ===
+                                                                  'success'
+                                                                      ? 'check-circle'
+                                                                      : item.emailStatus ===
+                                                                        'alert'
+                                                                      ? 'alert-circle'
+                                                                      : 'alarm-alt'
+                                                              }`}
+                                                          ></Icon>{' '}
+                                                          <span>Email</span>
+                                                      </li>
+                                                  </ul>
+                                              </DataTableRow> */}
+                          {/* <DataTableRow size="lg">
+                                                  <span>{item.lastLogin}</span>
+                                              </DataTableRow> */}
+                          {/* <DataTableRow>
+                                                  <span
+                                                      className={`tb-status text-${
+                                                          item.status ===
+                                                          'Active'
+                                                              ? 'success'
+                                                              : item.status ===
+                                                                'Pending'
+                                                              ? 'warning'
+                                                              : 'danger'
+                                                      }`}
+                                                  >
+                                                      {item.status}
+                                                  </span>
+                                              </DataTableRow> */}
 
                           {tableHeader
                             .filter((e, i) => i > 7 && e.visible)
@@ -1080,25 +1166,13 @@ const LendoLoanApplicationList = () => {
             </div>
           </DataTable>
         </Block>
-
-        <AddModal
-          modal={modal.add}
-          formData={formData}
-          setFormData={setFormData}
-          closeModal={closeModal}
-          onSubmit={onFormSubmit}
-          filterStatus={filterStatus}
-        />
-        <EditModal
-          modal={modal.edit}
-          formData={editFormData}
-          setFormData={setEditFormData}
-          closeModal={closeEditModal}
-          onSubmit={onEditSubmit}
-          filterStatus={filterStatus}
-        />
-      </Content>
+      </Content>{' '}
+      <ErrorModal
+        modal={modal.error}
+        closeModal={closeEditModal}
+        message={errorMessage}
+      />
     </React.Fragment>
   )
 }
-export default LendoLoanApplicationList
+export default LendoSkoringApplication
