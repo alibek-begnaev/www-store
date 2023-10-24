@@ -12,7 +12,6 @@ const RequestAccordion = ({ req, res, className, variation, ...props }) => {
       setIsOpen(param)
     }
   }
-  console.log(JSON.parse(req).data)
   return (
     <td
       colSpan={4}

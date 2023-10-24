@@ -84,6 +84,14 @@ const menu = [
         text: 'Aplication-List',
         link: '/lendo/application',
       },
+      {
+        text: 'Scoring - Application',
+        link: '/lendo/skoring-application',
+      },
+      {
+        text: 'Lendo Request',
+        link: '/lendo/lendo-request',
+      },
     ],
   },
 
