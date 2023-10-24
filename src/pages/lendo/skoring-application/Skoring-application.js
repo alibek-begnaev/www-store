@@ -984,30 +984,29 @@ const LendoSkoringApplication = () => {
                                 alignItems: 'center',
                               }}
                             >
-                              {item?.message ? item.message : ''}
-                              {/* <span
+                              <span
                                 className={`tb-status text-${
-                                  item.status === 'DONE' ||
-                                  item.status === 'SEND'
+                                  item.state === 'LIMITED' ||
+                                  item.state === 'SEND'
                                     ? 'success'
-                                    : item.status === 'CREATE'
+                                    : item.state === 'CREATE'
                                     ? 'warning'
                                     : 'danger'
                                 }`}
                               >
-                                {item.status}
+                                {item.state}
                               </span>{' '}
-                              {item.status === 'ERROR' && (
+                              {item.state === 'LIMIT_ERROR' && (
                                 <TooltipComponent
                                   tag="button"
-                                  onClick={() => onErrorClick(item.message)}
+                                  onClick={() => onErrorClick(item?.message)}
                                   containerClassName="btn btn-trigger btn-icon"
                                   id={'help-fill' + index}
                                   icon="help-fill"
                                   direction="bottom"
-                                  text={item.message}
+                                  text={item?.message}
                                 />
-                              )} */}
+                              )}
                             </div>
                           </DataTableRow>
                           {/* <DataTableRow size="lg">
@@ -1066,36 +1065,6 @@ const LendoSkoringApplication = () => {
 
                           <DataTableRow className="nk-tb-col-tools">
                             <ul className="nk-tb-actions gx-1">
-                              <li
-                                className="nk-tb-action-hidden"
-                                onClick={() => onEditClick(item.id)}
-                              >
-                                <TooltipComponent
-                                  tag="a"
-                                  containerClassName="btn btn-trigger btn-icon"
-                                  id={'edit' + item.id}
-                                  icon="edit-alt-fill"
-                                  direction="top"
-                                  text="Edit"
-                                />
-                              </li>
-                              {item.status !== 'Suspend' && (
-                                <React.Fragment>
-                                  <li
-                                    className="nk-tb-action-hidden"
-                                    onClick={() => suspendUser(item.id)}
-                                  >
-                                    <TooltipComponent
-                                      tag="a"
-                                      containerClassName="btn btn-trigger btn-icon"
-                                      id={'suspend' + item.id}
-                                      icon="user-cross-fill"
-                                      direction="top"
-                                      text="Suspend"
-                                    />
-                                  </li>
-                                </React.Fragment>
-                              )}
                               <li>
                                 <UncontrolledDropdown>
                                   <DropdownToggle
