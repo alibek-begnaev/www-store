@@ -130,7 +130,7 @@ const LendoCustomerList = () => {
     setLoader(true)
     dataInstance
       .get(
-        `/api/v1/lendo-admin/customer/get-customer-by-pagination?page=${
+        `/customer/get-customer-by-pagination?page=${
           currentPage - 1
         }&size=${itemPerPage}`
       )
@@ -157,7 +157,7 @@ const LendoCustomerList = () => {
       setLoader(true)
       dataInstance
         .get(
-          '/api/v1/lendo-admin/customer/' +
+          '/customer/' +
             (searchedText.length === 8
               ? 'get-customer-by-clientCode/'
               : 'get-customer-by-pnfl/') +
@@ -185,7 +185,7 @@ const LendoCustomerList = () => {
   //     setLoader(true)
   //     dataInstance
   //       .get(
-  //         '/api/v1/lendo-admin/customer/get-customer-by-pnfl/' +
+  //         '/customer/get-customer-by-pnfl/' +
   //           clientCode
   //       )
   //       .then((res) => {

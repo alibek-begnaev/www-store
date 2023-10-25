@@ -137,7 +137,7 @@ const LendoSkoringApplication = () => {
     setLoader(true)
     dataInstance
       .get(
-        `/api/v1/lendo-admin/app/get-application-by-pagination?page=${
+        `/app/get-application-by-pagination?page=${
           currentPage - 1
         }&size=${itemPerPage}`
       )
@@ -164,7 +164,7 @@ const LendoSkoringApplication = () => {
     (pinfl) => {
       setLoader(true)
       dataInstance
-        .get('/api/v1/lendo-admin/app/get-application-by-pinfl/' + pinfl)
+        .get('/app/get-application-by-pinfl/' + pinfl)
         .then((res) => {
           setData(
             res?.data?.done.data.map((item) => ({
@@ -987,9 +987,13 @@ const LendoSkoringApplication = () => {
                               <span
                                 className={`tb-status text-${
                                   item.state === 'LIMITED' ||
-                                  item.state === 'SEND'
+                                  item.state === 'ACCEPTED' ||
+                                  item.state === 'SUCCESS' ||
+                                  item.state === 'CONFIRMED'
                                     ? 'success'
-                                    : item.state === 'CREATE'
+                                    : item.state === 'CREATE' ||
+                                      item.state === 'SCORING' ||
+                                      item.state === 'LIMIT_PROCESS'
                                     ? 'warning'
                                     : 'danger'
                                 }`}

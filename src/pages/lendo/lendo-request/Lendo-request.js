@@ -117,7 +117,7 @@ const LendoRequest = () => {
     setLoader(true)
     dataInstance
       .get(
-        `/api/v1/lendo-admin/app/get-lendo-request-by-pagination?page=${
+        `/app/get-lendo-request-by-pagination?page=${
           currentPage - 1
         }&size=${itemPerPage}`
       )
@@ -144,7 +144,7 @@ const LendoRequest = () => {
     (pinfl) => {
       setLoader(true)
       dataInstance
-        .get('/api/v1/lendo-admin/app/get-application-by-pinfl/' + pinfl)
+        .get('/app/get-application-by-pinfl/' + pinfl)
         .then((res) => {
           setData(
             res?.data?.done.data.map((item) => ({

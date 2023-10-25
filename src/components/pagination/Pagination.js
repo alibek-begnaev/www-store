@@ -49,7 +49,7 @@ const PaginationComponent = ({
   }
 
   let paginationItms = paginationNumber()
-  console.log(paginationItms)
+
   const firstPage = () => {
     paginate(1)
   }
