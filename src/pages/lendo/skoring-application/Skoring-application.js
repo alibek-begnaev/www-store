@@ -41,7 +41,7 @@ import { Link, useParams, useNavigate } from 'react-router-dom'
 import { LendoContext, Loader } from '../LendoContext'
 import ErrorModal from '../../pre-built/user-manage/ErrorModal'
 import { bulkActionOptions } from '../../../utils/Utils'
-import dataInstance from '../../../utils/axios'
+import { dataInstance } from '../../../utils/axios'
 import { useCookies } from 'react-cookie'
 import { useSessionStorage } from 'usehooks-ts'
 
@@ -736,7 +736,7 @@ const LendoSkoringApplication = () => {
                 </div>
               </div>
             </div>
-            {loader ? (
+            {loader && data?.success ? (
               <div
                 style={{
                   width: '100%',

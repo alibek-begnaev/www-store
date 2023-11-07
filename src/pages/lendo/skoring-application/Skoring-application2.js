@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useContext, useCallback } from 'react'
+import { CSVLink, CSVDownload } from 'react-csv'
+
 import Content from '../../../layout/content/Content'
 import Head from '../../../layout/head/Head'
 import { findUpper } from '../../../utils/Utils'
-import {
-  userData,
-  filterRole,
-  filterStatus,
-} from '../../pre-built/user-manage/UserData'
+
 import {
   Dropdown,
   DropdownMenu,
@@ -36,25 +34,36 @@ import {
   RSelect,
   TooltipComponent,
 } from '../../../components/Component'
-import { Link } from 'react-router-dom'
+import { Link, useParams, useNavigate } from 'react-router-dom'
 import { LendoContext, Loader } from '../LendoContext'
-import EditModal from '../../pre-built/user-manage/EditModal'
-import AddModal from '../../pre-built/user-manage/AddModal'
+import ErrorModal from '../../pre-built/user-manage/ErrorModal'
 import { bulkActionOptions } from '../../../utils/Utils'
-import { dataInstance } from '../../../utils/axios'
+import { filterDatas, sortDatas } from './components/default'
+import { dataInstance2 } from '../../../utils/axios'
 import { useCookies } from 'react-cookie'
 import { useSessionStorage } from 'usehooks-ts'
+import FilterApplication from './components/filter'
+import SortApplication from './components/sort'
 
-const LendoCustomerList = () => {
+const LendoSkoringApplication2 = () => {
   const { contextData } = useContext(LendoContext)
-  const [loader, setLoader] = useContext(Loader)
   const [data, setData] = contextData
   const [cookie, setCookie, removeCookie] = useCookies()
+  const [loader, setLoader] = useContext(Loader)
+  const navigate = useNavigate()
+  const [sort, setSort] = useSessionStorage('lendoSkoringApplicationSort', [
+    ...sortDatas,
+  ])
+  const [filter, setFilter] = useSessionStorage(
+    'lendoSkoringApplicationFilter',
+    { ...filterDatas }
+  )
+  let { pinfl } = useParams()
   const [sm, updateSm] = useState(false)
   const [tablesm, updateTableSm] = useState(false)
   const [onSearch, setonSearch] = useState(true)
   const [onSearchText, setSearchText] = useState('')
-  const [dataTest, setDataTest] = useState()
+  const [dataPage, setDataPage] = useState()
   const [modal, setModal] = useState({
     edit: false,
     add: false,
@@ -74,25 +83,23 @@ const LendoCustomerList = () => {
     phone: '',
     status: '',
   })
+
   const [actionText, setActionText] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-  const [itemPerPage, setItemPerPage] = useState(10)
-  const [sort, setSortState] = useState('')
-  const [dropdownOpen, setDropdownOpen] = useState(false)
+
+  const [errorMessage, setErrorMessage] = useState()
+
   const [tableHeader, setTableHeader] = useSessionStorage(
-    'lendoCustomertableHeader',
+    'lendoSkoringApplication2Header',
     [
       { title: 'Name', visible: true, key: 'name' },
       { title: 'Passport', visible: true, key: 'document_serial' },
       { title: 'Pinfl', visible: true, key: 'pinfl' },
       { title: 'Phone', visible: true, key: 'phone' },
+      { title: 'Card number', visible: true, key: 'card_number' },
+      { title: 'Card Type', visible: true, key: 'card_type' },
       { title: 'Birthday', visible: true, key: 'birth_date' },
-      { title: 'Email', visible: true, key: 'email' },
-
-      { title: 'BXM Code', visible: false, key: 'bxm' },
-      { title: 'Client Code', visible: false, key: 'client_code' },
-      { title: 'Client ID', visible: false, key: 'client_id' },
-      { title: 'Client Uid', visible: false, key: 'client_uid' },
+      { title: 'Status', visible: true, key: 'status' },
 
       {
         title: 'Amal qilish muddati',
@@ -111,39 +118,25 @@ const LendoCustomerList = () => {
     ]
   )
 
-  const handleExport = () => {
-    removeCookie('token')
-  }
-  // Sorting data
-
-  const sortFunc = (params) => {
-    let defaultData = data
-    if (params === 'asc') {
-      let sortedData = defaultData.sort((a, b) => a.name.localeCompare(b.name))
-      setData([...sortedData])
-    } else if (params === 'dsc') {
-      let sortedData = defaultData.sort((a, b) => b.name.localeCompare(a.name))
-      setData([...sortedData])
-    }
-  }
-  const fetchData = useCallback(() => {
+  const fetchData = () => {
     setLoader(true)
-    dataInstance
-      .get(
-        `/customer/get-customer-by-pagination?page=${
-          currentPage - 1
-        }&size=${itemPerPage}`
-      )
+    setData([])
+    dataInstance2
+      .post(`/applications`, {
+        pageNumber: currentPage - 1,
+        pageSize: filter?.itemPerPage ? filter.itemPerPage : 25,
+      })
       .then((res) => {
         setData(
-          res?.data?.done.data.map((item) => ({
+          res?.data?.done.content.map((item) => ({
             ...item,
             checked: false,
           }))
         )
-        setDataTest({
-          totalItems: res?.data?.totalItems,
-          totalPages: res?.data?.totalPages,
+        setDataPage({
+          totalItems: res?.data?.done.totalElements,
+          totalPages: res?.data?.done.totalPages,
+          size: res?.data?.done.size,
         })
         setLoader(false)
       })
@@ -151,26 +144,58 @@ const LendoCustomerList = () => {
         console.log(error)
         setLoader(false)
       })
-  }, [currentPage, itemPerPage, setData, setLoader])
-  const fetchDataByClientCode = useCallback(
-    (searchedText) => {
+  }
+  // unselects the data on mount
+  const fetchDataByFilter = useCallback(
+    (props) => {
+      const { filters, sorts } = props
+
+      const filteredKeys = Object.keys(filters).filter(
+        (el) => !!filters[el] === true && el != 'itemPerPage'
+      )
+
+      const filterdValues = filteredKeys.map((el) => {
+        if (typeof filters[el] === 'object') {
+          return filters[el].label
+        } else {
+          return filters[el]
+        }
+      })
+      const filterOperators = filteredKeys.map((el) =>
+        el === 'id' ? 'equal' : 'like'
+      )
+      const sortKeys = sorts
+        .filter((e) => e.orderNum !== '')
+        .sort((a, b) => a.orderNum - b.orderNum)
+        .map((item) => item.className)
+      const sortValues = sortKeys.map(
+        (item) => sorts[sorts.findIndex((e) => e.className === item)].order
+      )
+      console.log(sortKeys, sortValues)
+      setData([])
       setLoader(true)
-      dataInstance
-        .get(
-          '/customer/' +
-            (searchedText.length === 8
-              ? 'get-customer-by-clientCode/'
-              : 'get-customer-by-pnfl/') +
-            searchedText
-        )
+      dataInstance2
+        .post(`/applications`, {
+          sortFields: [...sortKeys],
+          sortDirections: [...sortValues],
+          filterFields: [...filteredKeys],
+          filterValues: [...filterdValues],
+          filterOperators: [...filterOperators],
+          pageNumber: currentPage - 1,
+          pageSize: filters?.itemPerPage ? filters.itemPerPage : 25,
+        })
         .then((res) => {
           setData(
-            res?.data?.done.data.map((item) => ({
+            res?.data?.done.content.map((item) => ({
               ...item,
               checked: false,
             }))
           )
-
+          setDataPage({
+            totalItems: res?.data?.done.totalElements,
+            totalPages: res?.data?.done.totalPages,
+            size: res?.data?.done.size,
+          })
           setLoader(false)
         })
         .catch((error) => {
@@ -178,72 +203,39 @@ const LendoCustomerList = () => {
           setLoader(false)
         })
     },
-    [setData, setLoader]
+    [currentPage, setData, setLoader]
   )
-  // const fetchDataByPinfl = useCallback(
-  //   (clientCode) => {
-  //     setLoader(true)
-  //     dataInstance
-  //       .get(
-  //         '/customer/get-customer-by-pnfl/' +
-  //           clientCode
-  //       )
-  //       .then((res) => {
-  //         setData(
-  //           res?.data?.done.data.map((item) => ({
-  //             ...item,
-  //             checked: false,
-  //           }))
-  //         )
-  //         setDataTest({
-  //           totalItems: res?.data?.totalItems,
-  //           totalPages: res?.data?.totalPages,
-  //         })
-  //         setLoader(false)
-  //       })
-  //       .catch((error) => console.log(error))
-  //   },
-  //   [setData, setLoader]
-  // )
-  // unselects the data on mount
-  // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Changing state value when searching name
-  useEffect(() => {
+  let isFilterEmpty = true
+  for (const key in filter) {
     if (
-      onSearchText !== '' &&
-      (onSearchText.trim().length === 8 || onSearchText.trim().length === 14)
+      Object.prototype.hasOwnProperty.call(filter, key) &&
+      key !== 'itemPerPage'
     ) {
-      fetchDataByClientCode(onSearchText.trim())
-    } else if (onSearchText.length === 0) {
+      if (filter[key] !== '' || typeof filter[key] !== 'string') {
+        isFilterEmpty = false
+        break
+      }
+    }
+  }
+  const isSortEmpty = sort.some((obj) => obj.orderNum !== '')
+  console.log(isSortEmpty)
+  useEffect(() => {
+    if (!isFilterEmpty || isSortEmpty) {
+      fetchDataByFilter({ filters: filter, sorts: sort })
+    } else {
       fetchData()
     }
-    //     const filteredObject = dataTest.filter((item) => {
-    //         return (
-    //             item?.item.email
-    //                 .toLowerCase()
-    //                 .includes(onSearchText.toLowerCase()) ||
-    //             item?.email
-    //                 .toLowerCase()
-    //                 .includes(onSearchText.toLowerCase())
-    //         )
-    //     })
-    //     setDataTest([...filteredObject])
-    // }
-    //  else {
-    //     setDataTest([...dataTest])
-    // }
-  }, [fetchData, fetchDataByClientCode, onSearchText, setData, setLoader])
+  }, [fetchDataByFilter])
 
   // onChange function for searching name
   const onFilterChange = (e) => {
     setSearchText(e.target.value)
   }
-  console.log(dataTest)
   // function to change the selected property of an item
   const onSelectChange = (e, id) => {
     let newData = data
-    let index = newData.findIndex((item) => item.client_id === id)
+    let index = newData.findIndex((item) => item.id === id)
     newData[index].checked = e.currentTarget.checked
     setData([...newData])
   }
@@ -253,11 +245,9 @@ const LendoCustomerList = () => {
     let index = newData.findIndex((item) => item.title === title)
     newData[index].visible = e.currentTarget.checked
     setTableHeader([...newData])
+    // setCookie('filter', [...newData], { path: '/lendo' })
   }
   // function to set the action to be taken in table header
-  const onActionText = (e) => {
-    setActionText(e.value)
-  }
 
   // function to reset the form
   const resetForm = () => {
@@ -268,11 +258,6 @@ const LendoCustomerList = () => {
       phone: '',
       status: 'Active',
     })
-  }
-
-  const closeModal = () => {
-    setModal({ add: false })
-    resetForm()
   }
 
   const closeEditModal = () => {
@@ -331,6 +316,10 @@ const LendoCustomerList = () => {
     setModal({ edit: false })
   }
 
+  const onErrorClick = (message) => {
+    setModal({ error: true }, { add: false }, { edit: false })
+    setErrorMessage(message)
+  }
   // function that loads the want to editted data
   const onEditClick = (id) => {
     data.forEach((item) => {
@@ -395,10 +384,13 @@ const LendoCustomerList = () => {
   // Change Page
   const paginate = (pageNumber) => setCurrentPage(pageNumber)
 
+  const handleItemsPerPage = () => {
+    fetchDataByFilter({ filters: filter, sorts: sort })
+  }
+
   return (
     <React.Fragment>
       <Head title="User List - Compact"></Head>
-
       <Content>
         <BlockHead size="sm">
           <BlockBetween>
@@ -407,7 +399,7 @@ const LendoCustomerList = () => {
                 Users Lists
               </BlockTitle>
               <BlockDes className="text-soft">
-                <p>You have total {dataTest?.totalItems} users.</p>
+                <p>You have total {dataPage?.totalItems} users.</p>
               </BlockDes>
             </BlockHeadContent>
             <BlockHeadContent>
@@ -426,17 +418,16 @@ const LendoCustomerList = () => {
                 >
                   <ul className="nk-block-tools g-3">
                     <li>
-                      <a
-                        href="#export"
-                        onClick={(ev) => {
-                          ev.preventDefault()
-                          handleExport()
-                        }}
-                        className="btn btn-white btn-outline-light"
-                      >
-                        <Icon name="download-cloud"></Icon>
-                        <span>Export</span>
-                      </a>
+                      {data && (
+                        <CSVLink
+                          filename={'application-list.csv'}
+                          className="btn btn-white btn-outline-light"
+                          data={data}
+                        >
+                          <Icon name="download-cloud"></Icon>
+                          <span>Export</span>
+                        </CSVLink>
+                      )}
                     </li>
                     <li className="nk-block-tools-opt">
                       <Button
@@ -460,7 +451,7 @@ const LendoCustomerList = () => {
               <div className="card-title-group">
                 <div className="card-tools">
                   <div className="form-inline flex-nowrap gx-3">
-                    <div className="form-wrap">
+                    {/* <div className="form-wrap">
                       <RSelect
                         options={bulkActionOptions}
                         className="w-130px"
@@ -491,22 +482,45 @@ const LendoCustomerList = () => {
                           <Icon name="arrow-right"></Icon>
                         </Button>
                       </span>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
                 <div className="card-tools me-n1">
                   <ul className="btn-toolbar gx-1">
                     <li>
-                      <a
-                        href="#search"
-                        onClick={(ev) => {
-                          ev.preventDefault()
-                          toggle()
-                        }}
-                        className="btn btn-icon search-toggle toggle-search"
+                      <Button
+                        color="light"
+                        outline
+                        className="btn-dim"
+                        onClick={handleItemsPerPage}
                       >
-                        <Icon name="search"></Icon>
-                      </a>
+                        Apply
+                      </Button>
+                    </li>
+                    <li>
+                      <input
+                        value={filter?.itemPerPage}
+                        onChange={(e) => {
+                          e.preventDefault()
+                          setFilter((prev) => ({
+                            ...prev,
+                            itemPerPage: e.target.value,
+                          }))
+                        }}
+                        style={{ textAlign: 'center', width: '80px' }}
+                        name="itemPerPage"
+                        className="form-control form-control-sm"
+                      />
+                    </li>
+                    <li>
+                      {data?.length > 0 && (
+                        <PaginationComponent
+                          itemPerPage={dataPage?.size}
+                          totalItems={dataPage?.totalItems}
+                          paginate={paginate}
+                          currentPage={currentPage}
+                        />
+                      )}
                     </li>
                     <li className="btn-toolbar-sep"></li>
                     <li>
@@ -534,207 +548,17 @@ const LendoCustomerList = () => {
                               </Button>
                             </li>
                             <li>
-                              <UncontrolledDropdown>
-                                <DropdownToggle
-                                  tag="a"
-                                  className="btn btn-trigger btn-icon dropdown-toggle"
-                                >
-                                  <div className="dot dot-primary"></div>
-                                  <Icon name="filter-alt"></Icon>
-                                </DropdownToggle>
-                                <DropdownMenu
-                                  end
-                                  className="filter-wg dropdown-menu-xl"
-                                  style={{
-                                    overflow: 'visible',
-                                  }}
-                                >
-                                  <div className="dropdown-head">
-                                    <span className="sub-title dropdown-title">
-                                      Filter Users
-                                    </span>
-                                    <div className="dropdown">
-                                      <DropdownItem
-                                        href="#more"
-                                        onClick={(ev) => {
-                                          ev.preventDefault()
-                                        }}
-                                        className="btn btn-sm btn-icon"
-                                      >
-                                        <Icon name="more-h"></Icon>
-                                      </DropdownItem>
-                                    </div>
-                                  </div>
-                                  <div className="dropdown-body dropdown-body-rg">
-                                    <Row className="gx-6 gy-3">
-                                      <Col size="6">
-                                        <div className="custom-control custom-control-sm custom-checkbox">
-                                          <input
-                                            type="checkbox"
-                                            className="custom-control-input"
-                                            id="hasBalance"
-                                          />
-                                          <label
-                                            className="custom-control-label"
-                                            htmlFor="hasBalance"
-                                          >
-                                            {' '}
-                                            Have Balance
-                                          </label>
-                                        </div>
-                                      </Col>
-                                      <Col size="6">
-                                        <div className="custom-control custom-control-sm custom-checkbox">
-                                          <input
-                                            type="checkbox"
-                                            className="custom-control-input"
-                                            id="hasKYC"
-                                          />
-                                          <label
-                                            className="custom-control-label"
-                                            htmlFor="hasKYC"
-                                          >
-                                            {' '}
-                                            KYC Verified
-                                          </label>
-                                        </div>
-                                      </Col>
-                                      <Col size="6">
-                                        <div className="form-group">
-                                          <label className="overline-title overline-title-alt">
-                                            Role
-                                          </label>
-                                          <RSelect
-                                            options={filterRole}
-                                            placeholder="Any Role"
-                                          />
-                                        </div>
-                                      </Col>
-                                      <Col size="6">
-                                        <div className="form-group">
-                                          <label className="overline-title overline-title-alt">
-                                            Status
-                                          </label>
-                                          <RSelect
-                                            options={filterStatus}
-                                            placeholder="Any Status"
-                                          />
-                                        </div>
-                                      </Col>
-                                      <Col size="12">
-                                        <div className="form-group">
-                                          <Button color="secondary">
-                                            Filter
-                                          </Button>
-                                        </div>
-                                      </Col>
-                                    </Row>
-                                  </div>
-                                  <div className="dropdown-foot between">
-                                    <a
-                                      href="#reset"
-                                      onClick={(ev) => {
-                                        ev.preventDefault()
-                                      }}
-                                      className="clickable"
-                                    >
-                                      Reset Filter
-                                    </a>
-                                    <a
-                                      href="#save"
-                                      onClick={(ev) => {
-                                        ev.preventDefault()
-                                      }}
-                                    >
-                                      Save Filter
-                                    </a>
-                                  </div>
-                                </DropdownMenu>
-                              </UncontrolledDropdown>
+                              <FilterApplication
+                                filterSubmit={fetchDataByFilter}
+                                resetSubmit={fetchData}
+                              />
                             </li>
                             <li>
-                              <UncontrolledDropdown>
-                                <DropdownToggle
-                                  tag="a"
-                                  className="btn btn-trigger btn-icon dropdown-toggle"
-                                >
-                                  <Icon name="setting"></Icon>
-                                </DropdownToggle>
-                                <DropdownMenu end className="dropdown-menu-xs">
-                                  <ul className="link-check">
-                                    <li>
-                                      <span>Show</span>
-                                    </li>
-                                    <li
-                                      className={
-                                        itemPerPage === 10 ? 'active' : ''
-                                      }
-                                    >
-                                      <DropdownItem
-                                        tag="a"
-                                        href="#dropdownitem"
-                                        onClick={(ev) => {
-                                          ev.preventDefault()
-                                          setItemPerPage(10)
-                                        }}
-                                      >
-                                        10
-                                      </DropdownItem>
-                                    </li>
-                                    <li
-                                      className={
-                                        itemPerPage === 15 ? 'active' : ''
-                                      }
-                                    >
-                                      <DropdownItem
-                                        tag="a"
-                                        href="#dropdownitem"
-                                        onClick={(ev) => {
-                                          ev.preventDefault()
-                                          setItemPerPage(15)
-                                        }}
-                                      >
-                                        15
-                                      </DropdownItem>
-                                    </li>
-                                  </ul>
-                                  <ul className="link-check">
-                                    <li>
-                                      <span>Order</span>
-                                    </li>
-                                    <li
-                                      className={sort === 'dsc' ? 'active' : ''}
-                                    >
-                                      <DropdownItem
-                                        tag="a"
-                                        href="#dropdownitem"
-                                        onClick={(ev) => {
-                                          ev.preventDefault()
-                                          setSortState('dsc')
-                                          sortFunc('dsc')
-                                        }}
-                                      >
-                                        DESC
-                                      </DropdownItem>
-                                    </li>
-                                    <li
-                                      className={sort === 'asc' ? 'active' : ''}
-                                    >
-                                      <DropdownItem
-                                        tag="a"
-                                        href="#dropdownitem"
-                                        onClick={(ev) => {
-                                          ev.preventDefault()
-                                          setSortState('asc')
-                                          sortFunc('asc')
-                                        }}
-                                      >
-                                        ASC
-                                      </DropdownItem>
-                                    </li>
-                                  </ul>
-                                </DropdownMenu>
-                              </UncontrolledDropdown>
+                              <SortApplication
+                                filterSubmit={fetchDataByFilter}
+                                resetSubmit={fetchData}
+                                datas={data}
+                              />
                             </li>
                           </ul>
                         </div>
@@ -771,18 +595,7 @@ const LendoCustomerList = () => {
                 </div>
               </div>
             </div>
-            {loader ? (
-              <div
-                style={{
-                  width: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                ...Loading
-              </div>
-            ) : (
+            {data && (
               <DataTableBody compact>
                 <DataTableHead>
                   <DataTableRow className="nk-tb-col-check">
@@ -857,7 +670,7 @@ const LendoCustomerList = () => {
                         <DropdownMenu className="dropdown-menu-xs">
                           <ul className="link-tidy sm no-bdr">
                             {tableHeader
-                              .filter((e, i) => i > 5)
+                              .filter((e, i) => i > 7)
                               .map((item, index) => (
                                 <li key={index}>
                                   <div className="custom-control custom-control-sm custom-checkbox">
@@ -956,21 +769,19 @@ const LendoCustomerList = () => {
                                 type="checkbox"
                                 className="custom-control-input"
                                 defaultChecked={item.checked}
-                                id={item?.client_id + 'uid1'}
+                                id={item?.id + 'uid1'}
                                 key={Math.random()}
-                                onChange={(e) =>
-                                  onSelectChange(e, item?.client_id)
-                                }
+                                onChange={(e) => onSelectChange(e, item?.id)}
                               />
                               <label
                                 className="custom-control-label"
-                                htmlFor={item?.client_id + 'uid1'}
+                                htmlFor={item?.id + 'uid1'}
                               ></label>
                             </div>
                           </DataTableRow>
                           <DataTableRow>
                             <Link
-                              to={`${process.env.PUBLIC_URL}/lendo/application/${item.pinfl}`}
+                              to={`${process.env.PUBLIC_URL}/lendo/skoring-application-details/${item.id}`}
                             >
                               <div className="user-card">
                                 <UserAvatar
@@ -993,6 +804,7 @@ const LendoCustomerList = () => {
                               </div>
                             </Link>
                           </DataTableRow>
+
                           <DataTableRow>
                             <span>
                               {item.document_serial + item.document_number}
@@ -1005,59 +817,53 @@ const LendoCustomerList = () => {
                             <span>{'+' + item.phone}</span>
                           </DataTableRow>
                           <DataTableRow>
+                            <span>{item.card_number}</span>
+                          </DataTableRow>
+                          <DataTableRow>
+                            <span>{item.card_type}</span>
+                          </DataTableRow>
+                          <DataTableRow>
                             <span>{item.birth_date}</span>
                           </DataTableRow>
                           <DataTableRow>
-                            <span>{item.email}</span>
+                            <div
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                              }}
+                            >
+                              <span
+                                className={`tb-status text-${
+                                  item.state === 'LIMITED' ||
+                                  item.state === 'ACCEPTED' ||
+                                  item.state === 'SUCCESS' ||
+                                  item.state === 'CONFIRMED'
+                                    ? 'success'
+                                    : item.state === 'CREATE' ||
+                                      item.state === 'SCORING' ||
+                                      item.state === 'LIMIT_PROCESS'
+                                    ? 'warning'
+                                    : 'danger'
+                                }`}
+                              >
+                                {item.state}
+                              </span>{' '}
+                              {item.state === 'LIMIT_ERROR' && (
+                                <TooltipComponent
+                                  tag="button"
+                                  onClick={() => onErrorClick(item?.message)}
+                                  containerClassName="btn btn-trigger btn-icon"
+                                  id={'help-fill' + index}
+                                  icon="help-fill"
+                                  direction="bottom"
+                                  text={item?.message}
+                                />
+                              )}
+                            </div>
                           </DataTableRow>
-                          {/* <DataTableRow size="lg">
-                                                  <ul className="list-status">
-                                                      <li>
-                                                          <Icon
-                                                              className={`text-${
-                                                                  item.emailStatus ===
-                                                                  'success'
-                                                                      ? 'success'
-                                                                      : item.emailStatus ===
-                                                                        'pending'
-                                                                      ? 'info'
-                                                                      : 'secondary'
-                                                              }`}
-                                                              name={`${
-                                                                  item.emailStatus ===
-                                                                  'success'
-                                                                      ? 'check-circle'
-                                                                      : item.emailStatus ===
-                                                                        'alert'
-                                                                      ? 'alert-circle'
-                                                                      : 'alarm-alt'
-                                                              }`}
-                                                          ></Icon>{' '}
-                                                          <span>Email</span>
-                                                      </li>
-                                                  </ul>
-                                              </DataTableRow> */}
-                          {/* <DataTableRow size="lg">
-                                                  <span>{item.lastLogin}</span>
-                                              </DataTableRow> */}
-                          {/* <DataTableRow>
-                                                  <span
-                                                      className={`tb-status text-${
-                                                          item.status ===
-                                                          'Active'
-                                                              ? 'success'
-                                                              : item.status ===
-                                                                'Pending'
-                                                              ? 'warning'
-                                                              : 'danger'
-                                                      }`}
-                                                  >
-                                                      {item.status}
-                                                  </span>
-                                              </DataTableRow> */}
 
                           {tableHeader
-                            .filter((e, i) => i > 5 && e.visible)
+                            .filter((e, i) => i > 7 && e.visible)
                             .map((el, index) => (
                               <DataTableRow key={index}>
                                 <span>{item[el.key]}</span>
@@ -1066,36 +872,6 @@ const LendoCustomerList = () => {
 
                           <DataTableRow className="nk-tb-col-tools">
                             <ul className="nk-tb-actions gx-1">
-                              <li
-                                className="nk-tb-action-hidden"
-                                onClick={() => onEditClick(item.id)}
-                              >
-                                <TooltipComponent
-                                  tag="a"
-                                  containerClassName="btn btn-trigger btn-icon"
-                                  id={'edit' + item.id}
-                                  icon="edit-alt-fill"
-                                  direction="top"
-                                  text="Edit"
-                                />
-                              </li>
-                              {item.status !== 'Suspend' && (
-                                <React.Fragment>
-                                  <li
-                                    className="nk-tb-action-hidden"
-                                    onClick={() => suspendUser(item.id)}
-                                  >
-                                    <TooltipComponent
-                                      tag="a"
-                                      containerClassName="btn btn-trigger btn-icon"
-                                      id={'suspend' + item.id}
-                                      icon="user-cross-fill"
-                                      direction="top"
-                                      text="Suspend"
-                                    />
-                                  </li>
-                                </React.Fragment>
-                              )}
                               <li>
                                 <UncontrolledDropdown>
                                   <DropdownToggle
@@ -1106,37 +882,14 @@ const LendoCustomerList = () => {
                                   </DropdownToggle>
                                   <DropdownMenu end>
                                     <ul className="link-list-opt no-bdr">
-                                      <li onClick={() => onEditClick(item.id)}>
-                                        <DropdownItem
-                                          tag="a"
-                                          href="#edit"
-                                          onClick={(ev) => {
-                                            ev.preventDefault()
-                                          }}
+                                      <li>
+                                        <Link
+                                          to={`${process.env.PUBLIC_URL}/lendo/skoring-application-details/${item.id}`}
                                         >
-                                          <Icon name="edit"></Icon>
-                                          <span>Edit</span>
-                                        </DropdownItem>
+                                          <Icon name="view"></Icon>
+                                          <span>View</span>
+                                        </Link>
                                       </li>
-                                      {item.status !== 'Suspend' && (
-                                        <React.Fragment>
-                                          <li className="divider"></li>
-                                          <li
-                                            onClick={() => suspendUser(item.id)}
-                                          >
-                                            <DropdownItem
-                                              tag="a"
-                                              href="#suspend"
-                                              onClick={(ev) => {
-                                                ev.preventDefault()
-                                              }}
-                                            >
-                                              <Icon name="na"></Icon>
-                                              <span>Suspend User</span>
-                                            </DropdownItem>
-                                          </li>
-                                        </React.Fragment>
-                                      )}
                                     </ul>
                                   </DropdownMenu>
                                 </UncontrolledDropdown>
@@ -1151,40 +904,23 @@ const LendoCustomerList = () => {
             )}
 
             <div className="card-inner">
-              {data && data.length > 0 ? (
-                <PaginationComponent
-                  itemPerPage={itemPerPage}
-                  totalItems={dataTest?.totalItems}
-                  paginate={paginate}
-                  currentPage={currentPage}
-                />
-              ) : (
+              {!(data?.length > 0) && (
                 <div className="text-center">
-                  <span className="text-silent">No data found</span>
+                  <span className="text-silent">
+                    {loader ? '...Loading' : 'No data found'}{' '}
+                  </span>
                 </div>
               )}
             </div>
           </DataTable>
         </Block>
-
-        <AddModal
-          modal={modal.add}
-          formData={formData}
-          setFormData={setFormData}
-          closeModal={closeModal}
-          onSubmit={onFormSubmit}
-          filterStatus={filterStatus}
-        />
-        <EditModal
-          modal={modal.edit}
-          formData={editFormData}
-          setFormData={setEditFormData}
-          closeModal={closeEditModal}
-          onSubmit={onEditSubmit}
-          filterStatus={filterStatus}
-        />
-      </Content>
+      </Content>{' '}
+      <ErrorModal
+        modal={modal.error}
+        closeModal={closeEditModal}
+        message={errorMessage}
+      />
     </React.Fragment>
   )
 }
-export default LendoCustomerList
+export default LendoSkoringApplication2

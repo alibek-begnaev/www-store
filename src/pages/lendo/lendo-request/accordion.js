@@ -3,7 +3,7 @@ import { Collapse } from 'reactstrap'
 import { CodeBlock } from '../../../components/Component'
 
 const RequestAccordion = ({ req, res, className, variation, ...props }) => {
-  const [isOpen, setIsOpen] = useState('0')
+  const [isOpen, setIsOpen] = useState()
 
   const toggleCollapse = (param) => {
     if (param === isOpen) {
@@ -35,7 +35,7 @@ const RequestAccordion = ({ req, res, className, variation, ...props }) => {
             isOpen={isOpen === '1' ? true : false}
           >
             <div className="accordion-inner">
-              <CodeBlock language="jsx" title={props.title}>
+              <CodeBlock title={props?.title}>
                 {JSON.stringify(JSON.parse(req), false, 2)}
               </CodeBlock>
             </div>

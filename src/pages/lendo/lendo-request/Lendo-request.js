@@ -43,7 +43,7 @@ import { LendoContext, Loader } from '../LendoContext'
 import ErrorModal from '../../pre-built/user-manage/ErrorModal'
 import AddModal from '../../pre-built/user-manage/AddModal'
 import { bulkActionOptions } from '../../../utils/Utils'
-import dataInstance from '../../../utils/axios'
+import { dataInstance } from '../../../utils/axios'
 import { useCookies } from 'react-cookie'
 import { useSessionStorage } from 'usehooks-ts'
 import RequestAccordion from './accordion'
@@ -114,6 +114,7 @@ const LendoRequest = () => {
     }
   }
   const fetchData = useCallback(() => {
+    setData([])
     setLoader(true)
     dataInstance
       .get(
@@ -142,6 +143,7 @@ const LendoRequest = () => {
   // unselects the data on mount
   const fetchDataByPinfl = useCallback(
     (pinfl) => {
+      setData([])
       setLoader(true)
       dataInstance
         .get('/app/get-application-by-pinfl/' + pinfl)

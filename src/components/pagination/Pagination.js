@@ -9,12 +9,14 @@ const PaginationComponent = ({
   currentPage,
 }) => {
   const pageNumbers = []
-  for (let i = 1; i <= Math.ceil(totalItems / itemPerPage); i++) {
-    pageNumbers.push(i)
+  if (itemPerPage >= 1) {
+    for (let i = 1; i <= Math.ceil(totalItems / itemPerPage); i++) {
+      pageNumbers.push(i)
+    }
   }
 
   const paginationNumber = () => {
-    if (pageNumbers.length <= 5) {
+    if (pageNumbers.length <= 5 && pageNumbers.length >= 0) {
       return pageNumbers
     } else if (pageNumbers.length >= 5 && currentPage <= 4) {
       return [1, 2, 3, 4, 5, '...', pageNumbers[pageNumbers.length - 1]]

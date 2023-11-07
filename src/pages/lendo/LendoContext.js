@@ -133,15 +133,13 @@ export const Loader = createContext()
 export const LendoContextProvider = (props) => {
   const [data, setData] = useState()
   const value = React.useMemo(() => [data, setData], [data])
-
   const [loader, setLoader] = useState(false)
 
-  console.log('DATA: ', data)
   return (
-    <LendoContext.Provider value={{ contextData: value }}>
-      <Loader.Provider value={[loader, setLoader]}>
+    <Loader.Provider value={[loader, setLoader]}>
+      <LendoContext.Provider value={{ contextData: value }}>
         <Outlet />
-      </Loader.Provider>
-    </LendoContext.Provider>
+      </LendoContext.Provider>
+    </Loader.Provider>
   )
 }

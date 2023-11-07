@@ -64,6 +64,7 @@ export const CodeBlock = ({ language, ...props }) => {
         language="javascript"
         className="bg-lighter h-max-400px m-0"
         style={a11yLight}
+        customStyle={{ borderRadius: '5px', backgroundColor: '#001E3C' }}
       >
         {props.children}
       </SyntaxHighlighter>

@@ -42,7 +42,7 @@ import { LendoContext, Loader } from '../LendoContext'
 import EditModal from '../../pre-built/user-manage/EditModal'
 import AddModal from '../../pre-built/user-manage/AddModal'
 import { bulkActionOptions } from '../../../utils/Utils'
-import dataInstance from '../../../utils/axios'
+import { dataInstance } from '../../../utils/axios'
 import { useCookies } from 'react-cookie'
 import { useSessionStorage } from 'usehooks-ts'
 

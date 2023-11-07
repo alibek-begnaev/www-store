@@ -140,6 +140,8 @@ import LendoLoanApplicationList from '../pages/lendo/loan-application/LendoLoanA
 import LendoLoansList from '../pages/lendo/loans/LendoLoansList'
 import LendoSkoringApplication from '../pages/lendo/skoring-application/Skoring-application'
 import LendoRequest from '../pages/lendo/lendo-request/Lendo-request'
+import LendoSkoringApplication2 from '../pages/lendo/skoring-application/Skoring-application2'
+import ApplicationDetails from '../pages/lendo/skoring-application/details/ApplicationDetails'
 
 // const Blank = lazy(() => import('../pages/others/Blank'))
 // const Faq = lazy(() => import('../pages/others/Faq'))
@@ -355,8 +357,12 @@ const Router = () => {
           ></Route>
           <Route path="lendo/loans" element={<LendoLoansList />}></Route>
           <Route
-            path="lendo/skoring-application/:pinfl?"
-            element={<LendoSkoringApplication />}
+            path="lendo/skoring-application/"
+            element={<LendoSkoringApplication2 />}
+          ></Route>
+          <Route
+            path="lendo/skoring-application-details/:appId"
+            element={<ApplicationDetails />}
           ></Route>
           <Route path="lendo/lendo-request" element={<LendoRequest />}></Route>
         </Route>
