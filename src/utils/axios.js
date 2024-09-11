@@ -5,5 +5,6 @@ export const dataInstance = axios.create({
 })
 
 export const dataInstance2 = axios.create({
-  baseURL: 'http://172.16.55.252:7000/api/v1/lendo',
+  baseURL: 'http://172.24.1.36:3001/api',
 })
+
