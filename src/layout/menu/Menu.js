@@ -323,6 +323,8 @@ const Menu = ({ sidebarToggle, mobileView }) => {
         if (found) {
           setMenuData([menu[index]])
         }
+        console.log(item)
+
       }
     })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps

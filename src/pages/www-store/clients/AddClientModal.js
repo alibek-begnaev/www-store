@@ -29,7 +29,7 @@ import {dataInstance2} from '../../../utils/axios'
 
 
 export default function AddClientMoadal(props){
-const {open, onFormCancel, setData, data} = props
+const {open, onFormCancel, getData, data} = props
 const [formData, setFormData] = useState({
 ads_name:"",
 dog_date:"",
@@ -41,15 +41,14 @@ phone_number:""
 }
 );
 const { reset, register, handleSubmit, formState: { errors } } = useForm();
-console.log("DATA1", formData)
+
 
 const addData = (formData) => {
-
       dataInstance2
         .post('/clients', {...formData})
         .then((res) => {
           console.log("RESLT", res)
-          
+          getData()
         })
         .catch((error) => {
           console.log(error)
@@ -58,7 +57,7 @@ const addData = (formData) => {
     }
    
 
-
+useEffect(()=>{reset(formData)}, [formData])
 const onFormSubmit = (form) => {
     const { customer, purchased, total } = form;
     // let submittedData = {
@@ -72,9 +71,12 @@ const onFormSubmit = (form) => {
     //   check: false,
     // };
     addData(formData)
-console.log("DATA", formData)
-onFormCancel()
-window.location.reload()
+   
+    onFormCancel()
+// setTimeout(()=>{
+// window.location.reload()
+// }, 1000)
+
     // resetForm();
   };
     return (
@@ -122,6 +124,9 @@ window.location.reload()
                         <DatePicker
                           selected={formData.dog_date}
                           className="form-control"
+                          {...register('dog_date', {
+                            required: "This field is required",
+                          })}
                           onChange={(date) => setFormData({ ...formData, dog_date: date })}
                         />
                         {errors.dog_date && <span className="invalid">{errors.dog_date.message}</span>}
@@ -171,6 +176,9 @@ window.location.reload()
                       <input
                           type="number"
                           className="form-control"
+                          {...register('duration', {
+                            required: "This field is required",
+                          })}
                           value={formData.duration}
                           onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
                         />
@@ -191,6 +199,9 @@ window.location.reload()
                             { value: "Карта", label: "Карта" },
                             { value: "Бартер", label: "Бартер" },
                           ]}
+                          {...register('payment_type', {
+                            required: "This field is required",
+                          })}
                           onChange={(e) => setFormData({ ...formData, payment_type: e.value })}
                           value={{value: formData.payment_type, label: formData.payment_type}}
                         />
@@ -207,6 +218,9 @@ window.location.reload()
                       <input
                           type="number"
                           className="form-control"
+                          {...register('phone_number', {
+                            required: "This field is required",
+                          })}
                           value={formData.phone_number}
                           onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
                         />

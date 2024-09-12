@@ -5,6 +5,6 @@ export const dataInstance = axios.create({
 })
 
 export const dataInstance2 = axios.create({
-  baseURL: 'http://172.24.1.36:3001/api',
+  baseURL: 'http://172.24.0.90:3001/api',
 })
 

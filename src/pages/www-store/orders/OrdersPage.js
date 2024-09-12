@@ -24,11 +24,11 @@ import { getDateStructured } from "../../../utils/Utils";
 import { UncontrolledDropdown, DropdownMenu, DropdownToggle, DropdownItem, Button, Modal, ModalBody, Badge } from "reactstrap";
 import { useForm } from "react-hook-form";
 import {dataInstance2} from '../../../utils/axios'
-import AddClientMoadal from "./AddClientModal";
-import EditClientMoadal from "./EditClientModal";
+import AddOrderMoadal from "./AddOrderModal";
+import EditOerderMoadal from "./EditOrderModal";
 
 
-const ClientsPage = () => {
+const OrdersPage = () => {
   const [data, setData] = useState();
   const [smOption, setSmOption] = useState(false);
   const [formData, setFormData] = useState();
@@ -45,7 +45,7 @@ const ClientsPage = () => {
   const getData = () => {  
     dataInstance2
       .get(
-        `/clients?page=1&limit=10`
+        `/application?page=1&limit=10`
       )
       .then((res) => {
         setData(
@@ -58,7 +58,7 @@ const ClientsPage = () => {
   const deleteData = (id) => {  
     dataInstance2
       .delete(
-        `/clients/`+id
+        `/application/`+id
       )
       .then((res) => {
         console.log("Deleted",
@@ -191,7 +191,7 @@ useEffect(()=> {
         <BlockHead size="sm">
           <BlockBetween>
             <BlockHeadContent>
-              <BlockTitle>Clients</BlockTitle>
+              <BlockTitle>Orders</BlockTitle>
             </BlockHeadContent>
             <BlockHeadContent>
               <div className="toggle-wrap nk-block-tools-toggle">
@@ -293,28 +293,28 @@ useEffect(()=> {
                 </div>
               </DataTableRow> */}
               <DataTableRow>
-                <span className="sub-text">Name</span>
+                <span className="sub-text">Client</span>
               </DataTableRow>
               <DataTableRow size="md">
-                <span className="sub-text">Dog_Date</span>
+                <span className="sub-text">Start Date</span>
               </DataTableRow>
               <DataTableRow>
-                <span className="sub-text">Advert  name, second type</span>
-              </DataTableRow>
-              <DataTableRow size="sm">
                 <span className="sub-text">Company name</span>
               </DataTableRow>
+              <DataTableRow size="sm">
+                <span className="sub-text">Payment type</span>
+              </DataTableRow>
               <DataTableRow size="md">
-                <span className="sub-text">duration</span>
+                <span className="sub-text">Duration</span>
               </DataTableRow>
               <DataTableRow>
-                <span className="sub-text">Payment</span>
+                <span className="sub-text">Summa</span>
               </DataTableRow>
               <DataTableRow>
-                <span className="sub-text">Telefon nomer</span>
+                <span className="sub-text">Kv/t</span>
               </DataTableRow>
               <DataTableRow>
-                <span className="sub-text">Tools</span>
+                <span className="sub-text">Screens</span>
               </DataTableRow>
               {/* <DataTableRow className="nk-tb-col-tools">
                 <ul className="nk-tb-actions gx-1 my-n1">
@@ -377,32 +377,32 @@ useEffect(()=> {
                     </DataTableRow> */}
                     <DataTableRow>
                       <a href="#id" onClick={(ev) => ev.preventDefault()}>
-                        {item.name}
+                        {item.client}
                       </a>
                     </DataTableRow>
                     <DataTableRow >
-                      <span>{item.dog_date}</span>
+                      <span>{item.company}</span>
                     </DataTableRow>
                     <DataTableRow >
                       <span>
-                       {item.ads_name}  
+                       {item.paymentType}  
                       </span>
                     
                        
          
                     </DataTableRow>
                     <DataTableRow >
-                      <span className="tb-sub">{item.from_company}</span>
+                      <span className="tb-sub">{item.duration}</span>
                     </DataTableRow>
 
                     <DataTableRow>
-                      <span className="tb-lead">{item.duration}</span>
+                      <span className="tb-lead">{item.summa}</span>
                     </DataTableRow>
                     <DataTableRow>
-                      <span className="tb-lead">{item.payment_type}</span>
+                      <span className="tb-lead">{item.kvT}</span>
                     </DataTableRow>
                     <DataTableRow>
-                      <span className="tb-lead">{item.phone_number}</span>
+                      <span className="tb-lead">{item.screens}</span>
                     </DataTableRow>
                     <DataTableRow className="nk-tb-col-tools">
                       <ul className="nk-tb-actions gx-1">
@@ -483,12 +483,12 @@ useEffect(()=> {
           </PreviewAltCard>
         </Block>
 
-      <AddClientMoadal open={view.add} formData={formData} setFormData={setFormData} onFormCancel={onFormCancel} setData={setData} getData={getData}/>
-<EditClientMoadal open={view.edit} formData={formData} editFormData={editFormData} setEditFormData={setEditFormData} onFormCancel={onFormCancel} getData={getData}/>
+      <AddOrderMoadal open={view.add} formData={formData} setFormData={setFormData} onFormCancel={onFormCancel} setData={setData} getData={getData}/>
+<EditOerderMoadal open={view.edit} formData={formData} editFormData={editFormData} setEditFormData={setEditFormData} onFormCancel={onFormCancel} getData={getData}/>
       
       </Content>
     </React.Fragment>
   );
 };
 
-export default ClientsPage;
+export default OrdersPage;

@@ -143,6 +143,7 @@ import LendoRequest from '../pages/lendo/lendo-request/Lendo-request'
 import LendoSkoringApplication2 from '../pages/lendo/skoring-application/Skoring-application2'
 import ApplicationDetails from '../pages/lendo/skoring-application/details/ApplicationDetails'
 import ClientsPage from '../pages/www-store/clients/ClientsPage'
+import OrdersPage from '../pages/www-store/orders/OrdersPage'
 
 // const Blank = lazy(() => import('../pages/others/Blank'))
 // const Faq = lazy(() => import('../pages/others/Faq'))
@@ -368,6 +369,12 @@ const Router = () => {
           <Route path="lendo/lendo-request" element={<LendoRequest />}></Route>
         </Route>
 
+        {/* WWW-STORE */}
+        <Route path="www-clients" element={<ClientsPage />}></Route>
+        <Route path="www-orders" element={<OrdersPage />}></Route>
+        <Route path="www-screen" element={<OrderSales />}></Route>
+
+
         {/*Pre-built Pages*/}
         <Route path="project-card" element={<ProjectCardPage />}></Route>
         <Route path="project-list" element={<ProjectListPage />}></Route>
@@ -400,12 +407,6 @@ const Router = () => {
             element={<UserProfileSetting />}
           ></Route>
         </Route>
-
-        {/* WWW-STORE */}
-        <Route path="www/clients" element={<ClientsPage />}></Route>
-        <Route path="www/orders" element={<OrderRegular />}></Route>
-        <Route path="www/screen" element={<OrderSales />}></Route>
-
 
         <Route path="order-list-default" element={<OrderDefault />}></Route>
         <Route path="order-list-regular" element={<OrderRegular />}></Route>

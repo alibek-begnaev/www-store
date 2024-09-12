@@ -159,12 +159,16 @@
                 > .nk-tb-col{
                     background: $white;
                     border: 1px solid black;
+                    
                     box-shadow: 0px 1px 3px 0px rgba($base-color, 0.05);
                     &:first-child{
                         border-radius: 4px 0 0 4px;
                     }
                     &:last-child{
                         border-radius: 0 4px 4px 0;
+                    }
+                    .sub-text{
+                        font-weight: 600;
                     }
                 }
                 &:hover .nk-tb-action-hidden{

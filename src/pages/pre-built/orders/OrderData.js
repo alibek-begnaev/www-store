@@ -1,12 +1,12 @@
 export const orderData = [
   {
-    id: 1,
-    orderId: "95954",
-    date: "Jun 4, 2020",
-    status: "On Hold",
-    customer: "Arnold Armstrong",
-    purchased: "3 items",
-    total: "249.75",
+    duration: 1,
+    phone_number: "95954",
+    dog_date: "Jun 4, 2020",
+    ads_name: "On Hold",
+    from_company: "Arnold Armstrong",
+    name: "3 items",
+    payment_type: "249.75",
     check: false,
   },
   {

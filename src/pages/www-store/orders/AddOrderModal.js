@@ -1,7 +1,9 @@
 
 import React, { useEffect, useState, useCallback } from "react";
-
+import Head from "../../../layout/head/Head";
+import Content from "../../../layout/content/Content";
 import DatePicker from "react-datepicker";
+import { orderData } from "../../pre-built/orders/OrderData";
 import {
   Block,
   BlockHeadContent,
@@ -26,54 +28,59 @@ import {dataInstance2} from '../../../utils/axios'
 
 
 
-export default function EditClientMoadal(props){
-const {open,onFormCancel,  editFormData, getData} = props
-console.log("FFFFF", editFormData)
+export default function AddOrderMoadal(props){
+const {open, onFormCancel, getData, data} = props
+const [formData, setFormData] = useState({
+ads_name:"",
+dog_date:"",
+duration:'',
+from_company:"",
+name:"",
+payment_type:"",
+phone_number:""
+}
+);
 const { reset, register, handleSubmit, formState: { errors } } = useForm();
-const [data, setData] = useState();
-
-useEffect(()=>{setData(editFormData)},[editFormData])
-console.log("DDDDDD", data)
-const editData = (data) => {
-    dataInstance2
-      .patch('/clients/'+data.id, {ads_name:data?.ads_name,
-        dog_date:data?.dog_date,
-        duration:data?.duration,
-        from_company:data?.from_company,
-        name:data?.name,
-        payment_type:data?.payment_type,
-        phone_number:data?.phone_number})
-      .then((res) => {
-        console.log("RESLT", res)
-        getData()
-      })
-      .catch((error) => {
-        console.log(error)
-       
-      })
-  }
- 
 
 
+const addData = (formData) => {
+      dataInstance2
+        .post('/application', {...formData})
+        .then((res) => {
+          console.log("RESLT", res)
+          getData()
+        })
+        .catch((error) => {
+          console.log(error)
+         
+        })
+    }
+   
+
+useEffect(()=>{reset(formData)}, [formData])
 const onFormSubmit = (form) => {
-  const { customer, purchased, total } = form;
-  // let submittedData = {
+    const { customer, purchased, total } = form;
+    // let submittedData = {
+  
+    //   orderId: "95981",
+    //   date: getDateStructured(formData.date),
+    //   status: formData.status,
+    //   customer: customer,
+    //   purchased: purchased,
+    //   total: total,
+    //   check: false,
+    // };
+    addData(formData)
+   
+    onFormCancel()
+// setTimeout(()=>{
+// window.location.reload()
+// }, 1000)
 
-  //   orderId: "95981",
-  //   date: getDateStructured(data.date),
-  //   status: data.status,
-  //   customer: customer,
-  //   purchased: purchased,
-  //   total: total,
-  //   check: false,
-  // };
-  editData(data)
-console.log("DATA", data)
-onFormCancel()
-  // resetForm();
-};
+    // resetForm();
+  };
     return (
-        <Modal isOpen={open} toggle={onFormCancel} className="modal-dialog-centered" size="lg">
+        <Modal isOpen={open} toggle={ onFormCancel} className="modal-dialog-centered" size="lg">
         <ModalBody>
           <a href="#cancel" className="close">
             {" "}
@@ -86,9 +93,9 @@ onFormCancel()
             ></Icon>
           </a>
           <div className="p-2">
-            <h5 className="title">Edit Client</h5>
+            <h5 className="title">Add Order</h5>
             <div className="mt-4">
-             {data && <form onSubmit={handleSubmit(onFormSubmit)}>
+              <form onSubmit={handleSubmit(onFormSubmit)}>
                 <Row className="g-3">
                   <Col md="12">
                     <div className="form-group">
@@ -102,8 +109,8 @@ onFormCancel()
                           {...register('name', {
                             required: "This field is required",
                           })}
-                          onChange={(e) => setData((data)=>({ ...data, name: e.target.value }))}
-                          value={data?.name} />
+                          onChange={(e) => setFormData((formData)=>({ ...formData, name: e.target.value }))}
+                          value={formData.name} />
                         {errors.name && <span className="invalid">{errors.name.message}</span>}
                       </div>
                     </div>
@@ -115,9 +122,12 @@ onFormCancel()
                       </label>
                       <div className="form-control-wrap">
                         <DatePicker
-                          selected={new Date(data.dog_date)}
+                          selected={formData.dog_date}
                           className="form-control"
-                          onChange={(date) => setData((data)=>({ ...data, dog_date: date }))}
+                          {...register('dog_date', {
+                            required: "This field is required",
+                          })}
+                          onChange={(date) => setFormData({ ...formData, dog_date: date })}
                         />
                         {errors.dog_date && <span className="invalid">{errors.dog_date.message}</span>}
                       </div>
@@ -134,8 +144,8 @@ onFormCancel()
                           type="text"
                           className="form-control"
                           {...register('ads_name', { required: "This is required" })}
-                          value={data.ads_name}
-                          onChange={(e) => setData({ ...data, ads_name: e.target.value })}/>
+                          value={formData.ads_name}
+                          onChange={(e) => setFormData({ ...formData, ads_name: e.target.value })}/>
                         {errors.ads_name && <span className="invalid">{errors.ads_name.message}</span>}
                       </div>
                     </div>
@@ -151,8 +161,8 @@ onFormCancel()
                          
                           className="form-control"
                           {...register('from_company', { required: "This is required" })}
-                          value={data.from_company}
-                          onChange={(e) => setData({ ...data, from_company: e.target.value })} />
+                          value={formData.from_company}
+                          onChange={(e) => setFormData({ ...formData, from_company: e.target.value })} />
                         {errors.from_company && <span className="invalid">{errors.from_company.message}</span>}
                       </div>
                     </div>
@@ -166,8 +176,11 @@ onFormCancel()
                       <input
                           type="number"
                           className="form-control"
-                          value={data.duration}
-                          onChange={(e) => setData({ ...data, duration: e.target.value })}
+                          {...register('duration', {
+                            required: "This field is required",
+                          })}
+                          value={formData.duration}
+                          onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
                         />
                       </div>
                     </div>
@@ -186,8 +199,11 @@ onFormCancel()
                             { value: "Карта", label: "Карта" },
                             { value: "Бартер", label: "Бартер" },
                           ]}
-                          onChange={(e) => setData({ ...data, payment_type: e.value })}
-                          value={{value: data.payment_type, label: data.payment_type}}
+                          {...register('payment_type', {
+                            required: "This field is required",
+                          })}
+                          onChange={(e) => setFormData({ ...formData, payment_type: e.value })}
+                          value={{value: formData.payment_type, label: formData.payment_type}}
                         />
                       </div>
                     </div>
@@ -200,9 +216,13 @@ onFormCancel()
                       </label>
                       <div className="form-control-wrap">
                       <input
+                          type="number"
                           className="form-control"
-                          value={data.phone_number}
-                          onChange={(e) => setData({ ...data, phone_number: e.target.value })}
+                          {...register('phone_number', {
+                            required: "This field is required",
+                          })}
+                          value={formData.phone_number}
+                          onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
                         />
                       </div>
                     </div>
@@ -210,11 +230,11 @@ onFormCancel()
                   <Col size="12">
                     <Button color="primary" type="submit">
                       <Icon className="plus"></Icon>
-                      <span>Edit Client</span>
+                      <span>Add Order</span>
                     </Button>
                   </Col>
                 </Row>
-              </form>}
+              </form>
             </div>
           </div>
         </ModalBody>

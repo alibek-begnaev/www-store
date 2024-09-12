@@ -26,7 +26,7 @@ import {dataInstance2} from '../../../utils/axios'
 
 
 
-export default function EditClientMoadal(props){
+export default function EditOrderMoadal(props){
 const {open,onFormCancel,  editFormData, getData} = props
 console.log("FFFFF", editFormData)
 const { reset, register, handleSubmit, formState: { errors } } = useForm();
@@ -36,7 +36,7 @@ useEffect(()=>{setData(editFormData)},[editFormData])
 console.log("DDDDDD", data)
 const editData = (data) => {
     dataInstance2
-      .patch('/clients/'+data.id, {ads_name:data?.ads_name,
+      .patch('/application/'+data.id, {ads_name:data?.ads_name,
         dog_date:data?.dog_date,
         duration:data?.duration,
         from_company:data?.from_company,

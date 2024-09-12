@@ -68,51 +68,51 @@ const menu = [
     heading: 'Applications',
   },
   {
-    icon: 'cc-alt2-fill',
+    icon: 'tile-thumb-fill',
     text: 'WWW-Store',
     active: false,
     subMenu: [
       {
         text: 'Clinets',
-        link: 'www/clients',
+        link: '/www-clients',
       },
       {
         text: 'Orders',
-        link: 'www/orders',
+        link: '/www-orders',
       },
       {
         text: 'Screen',
-        link: 'www/screen',
+        link: '/www-screen',
       },
     ],
   },
-  {
-    icon: 'tile-thumb-fill',
-    text: 'Lendo',
-    active: false,
-    subMenu: [
-      // {
-      //   text: 'Customers',
-      //   link: '/lendo/customers',
-      // },
-      // {
-      //   text: 'Loans',
-      //   link: '/lendo/loans',
-      // },
-      // {
-      //   text: 'Aplication-List',
-      //   link: '/lendo/application',
-      // },
-      {
-        text: 'Scoring - Application',
-        link: '/lendo/skoring-application',
-      },
-      // {
-      //   text: 'Lendo Request',
-      //   link: '/lendo/lendo-request',
-      // },
-    ],
-  },
+  // {
+  //   icon: 'tile-thumb-fill',
+  //   text: 'Lendo',
+  //   active: false,
+  //   subMenu: [
+  //     // {
+  //     //   text: 'Customers',
+  //     //   link: '/lendo/customers',
+  //     // },
+  //     // {
+  //     //   text: 'Loans',
+  //     //   link: '/lendo/loans',
+  //     // },
+  //     // {
+  //     //   text: 'Aplication-List',
+  //     //   link: '/lendo/application',
+  //     // },
+  //     {
+  //       text: 'Scoring - Application',
+  //       link: '/lendo/skoring-application',
+  //     },
+  //     // {
+  //     //   text: 'Lendo Request',
+  //     //   link: '/lendo/lendo-request',
+  //     // },
+  //   ],
+  // },
 
   {
     heading: 'Pre-built Pages',
