@@ -62,7 +62,9 @@ const editData = (data) => {
         startDate:data?.startDate,
         name:data?.name,
         maxAdsPerDay:data?.maxAdsPerDay,
-        currentAdCount:data?.currentAdCount})
+        currentAdCount:data?.currentAdCount,
+        prices: data?.prices
+      })
       .then((res) => {
         console.log("RESLT", res)
         getData()
