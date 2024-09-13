@@ -24,11 +24,11 @@ import { getDateStructured } from "../../../utils/Utils";
 import { UncontrolledDropdown, DropdownMenu, DropdownToggle, DropdownItem, Button, Modal, ModalBody, Badge } from "reactstrap";
 import { useForm } from "react-hook-form";
 import {dataInstance2} from '../../../utils/axios'
-import AddOrderMoadal from "./AddOrderModal";
-import EditOerderMoadal from "./EditOrderModal";
+import AddScreenModal from "./AddScreenModal";
+import EditScreenModal from "./EditScreenModal";
 
 
-const OrdersPage = () => {
+const ScreenPage = () => {
   const [data, setData] = useState();
   const [smOption, setSmOption] = useState(false);
   const [formData, setFormData] = useState();
@@ -45,11 +45,13 @@ const OrdersPage = () => {
   const getData = () => {  
     dataInstance2
       .get(
-        `/application?page=1&limit=100`
+        `/screen?page=1&limit=100`
       )
       .then((res) => {
         setData(
           res?.data.data)})
+         
+          
       .catch((error) => {
         console.log(error)
        
@@ -58,11 +60,15 @@ const OrdersPage = () => {
   const deleteData = (id) => {  
     dataInstance2
       .delete(
-        `/application/`+id
+        `/screen/`+id
       )
       .then((res) => {
         console.log("Deleted",
-          res)})
+          res)
+          getData()
+        })
+        
+         
       .catch((error) => {
         console.log(error)
        
@@ -152,8 +158,6 @@ useEffect(()=> {
   // function to delete a Order
   const deleteOrder = (id) => {
     deleteData(id)
-    setTimeout(()=>{ window.location.reload()}, 1000)
-   
     
   };
 
@@ -191,7 +195,7 @@ useEffect(()=> {
         <BlockHead size="sm">
           <BlockBetween>
             <BlockHeadContent>
-              <BlockTitle>Orders</BlockTitle>
+              <BlockTitle>Screens</BlockTitle>
             </BlockHeadContent>
             <BlockHeadContent>
               <div className="toggle-wrap nk-block-tools-toggle">
@@ -268,7 +272,7 @@ useEffect(()=> {
                         }}
                       >
                         <Icon name="plus"></Icon>
-                        <span>Add Client</span>
+                        <span>Add Screen</span>
                       </Button>
                     </li>
                   </ul>
@@ -293,28 +297,28 @@ useEffect(()=> {
                 </div>
               </DataTableRow> */}
               <DataTableRow>
-                <span className="sub-text">Client</span>
+                <span className="sub-text">Name</span>
               </DataTableRow>
               <DataTableRow size="md">
-                <span className="sub-text">Start Date</span>
+                <span className="sub-text">Location</span>
               </DataTableRow>
               <DataTableRow>
-                <span className="sub-text">Company name</span>
+                <span className="sub-text">Size</span>
               </DataTableRow>
               <DataTableRow size="sm">
-                <span className="sub-text">Payment type</span>
+                <span className="sub-text">startTime</span>
               </DataTableRow>
               <DataTableRow size="md">
-                <span className="sub-text">Duration</span>
+                <span className="sub-text">endTime</span>
               </DataTableRow>
               <DataTableRow>
-                <span className="sub-text">Summa</span>
+                <span className="sub-text">maxAdsPerDay</span>
               </DataTableRow>
               <DataTableRow>
-                <span className="sub-text">Kv/t</span>
+                <span className="sub-text">currentAdCount</span>
               </DataTableRow>
               <DataTableRow>
-                <span className="sub-text">Screens</span>
+                <span className="sub-text">Tools</span>
               </DataTableRow>
               {/* <DataTableRow className="nk-tb-col-tools">
                 <ul className="nk-tb-actions gx-1 my-n1">
@@ -377,33 +381,31 @@ useEffect(()=> {
                     </DataTableRow> */}
                     <DataTableRow>
                       <a href="#id" onClick={(ev) => ev.preventDefault()}>
-                        {item.client}
+                        {item.name}
                       </a>
                     </DataTableRow>
                     <DataTableRow >
-                      <span>{item.company}</span>
+                      <span>{item.location}</span>
                     </DataTableRow>
                     <DataTableRow >
                       <span>
-                       {item.paymentType}  
+                       {item.size}  
                       </span>
-                    
-                       
-         
                     </DataTableRow>
                     <DataTableRow >
-                      <span className="tb-sub">{item.duration}</span>
+                      <span className="tb-sub">{item.startDate}</span>
                     </DataTableRow>
 
                     <DataTableRow>
-                      <span className="tb-lead">{item.summa}</span>
+                      <span className="tb-lead">{item.endDate}</span>
                     </DataTableRow>
                     <DataTableRow>
-                      <span className="tb-lead">{item.kvT}</span>
+                      <span className="tb-lead">{item.maxAdsPerDay}</span>
                     </DataTableRow>
                     <DataTableRow>
-                      <span className="tb-lead">{item.screens}</span>
+                      <span className="tb-lead">{item.currentAdCount}</span>
                     </DataTableRow>
+                 
                     <DataTableRow className="nk-tb-col-tools">
                       <ul className="nk-tb-actions gx-1">
                    
@@ -441,7 +443,7 @@ useEffect(()=> {
                                     }}
                                   >
                                     <Icon name="pen"></Icon>
-                                    <span>Edit Client</span>
+                                    <span>Edit Screen</span>
                                   </DropdownItem>
                                 </li>
                                 <li>
@@ -454,7 +456,7 @@ useEffect(()=> {
                                     }}
                                   >
                                     <Icon name="trash"></Icon>
-                                    <span>Remove Client</span>
+                                    <span>Remove Screen</span>
                                   </DropdownItem>
                                 </li>
                               </ul>
@@ -477,18 +479,18 @@ useEffect(()=> {
               />
             ) : (
               <div className="text-center">
-                <span className="text-silent">No clients found</span>
+                <span className="text-silent">No Screens found</span>
               </div>
             )}
           </PreviewAltCard>
         </Block>
 
-      <AddOrderMoadal open={view.add} formData={formData} setFormData={setFormData} onFormCancel={onFormCancel} setData={setData} getData={getData}/>
-<EditOerderMoadal open={view.edit} formData={formData} editFormData={editFormData} setEditFormData={setEditFormData} onFormCancel={onFormCancel} getData={getData}/>
+      <AddScreenModal open={view.add} formData={formData} onFormCancel={onFormCancel}  getData={getData}/>
+<EditScreenModal open={view.edit}  editFormData={editFormData} onFormCancel={onFormCancel} getData={getData}/>
       
       </Content>
     </React.Fragment>
   );
 };
 
-export default OrdersPage;
+export default ScreenPage;

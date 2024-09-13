@@ -144,6 +144,8 @@ import LendoSkoringApplication2 from '../pages/lendo/skoring-application/Skoring
 import ApplicationDetails from '../pages/lendo/skoring-application/details/ApplicationDetails'
 import ClientsPage from '../pages/www-store/clients/ClientsPage'
 import OrdersPage from '../pages/www-store/orders/OrdersPage'
+import ScreenPage from '../pages/www-store/screens/ScreenPage'
+import CompanyPage from '../pages/www-store/company/CompanyPage'
 
 // const Blank = lazy(() => import('../pages/others/Blank'))
 // const Faq = lazy(() => import('../pages/others/Faq'))
@@ -372,9 +374,8 @@ const Router = () => {
         {/* WWW-STORE */}
         <Route path="www-clients" element={<ClientsPage />}></Route>
         <Route path="www-orders" element={<OrdersPage />}></Route>
-        <Route path="www-screen" element={<OrderSales />}></Route>
-
-
+        <Route path="www-screen" element={<ScreenPage />}></Route>
+        <Route path="www-company" element={<CompanyPage />}></Route>
         {/*Pre-built Pages*/}
         <Route path="project-card" element={<ProjectCardPage />}></Route>
         <Route path="project-list" element={<ProjectListPage />}></Route>

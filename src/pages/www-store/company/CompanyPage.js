@@ -24,11 +24,11 @@ import { getDateStructured } from "../../../utils/Utils";
 import { UncontrolledDropdown, DropdownMenu, DropdownToggle, DropdownItem, Button, Modal, ModalBody, Badge } from "reactstrap";
 import { useForm } from "react-hook-form";
 import {dataInstance2} from '../../../utils/axios'
-import AddOrderMoadal from "./AddOrderModal";
-import EditOerderMoadal from "./EditOrderModal";
+import AddCompanyMoadal from "./AddCompanyModal";
+import EditCompanyMoadal from "./EditCompanyModal";
 
 
-const OrdersPage = () => {
+const CompanyPage = () => {
   const [data, setData] = useState();
   const [smOption, setSmOption] = useState(false);
   const [formData, setFormData] = useState();
@@ -45,7 +45,7 @@ const OrdersPage = () => {
   const getData = () => {  
     dataInstance2
       .get(
-        `/application?page=1&limit=100`
+        `/company?page=1&limit=100`
       )
       .then((res) => {
         setData(
@@ -58,11 +58,15 @@ const OrdersPage = () => {
   const deleteData = (id) => {  
     dataInstance2
       .delete(
-        `/application/`+id
+        `/company/`+id
       )
       .then((res) => {
         console.log("Deleted",
-          res)})
+          res)
+          getData()
+        }
+        )
+     
       .catch((error) => {
         console.log(error)
        
@@ -152,8 +156,6 @@ useEffect(()=> {
   // function to delete a Order
   const deleteOrder = (id) => {
     deleteData(id)
-    setTimeout(()=>{ window.location.reload()}, 1000)
-   
     
   };
 
@@ -191,7 +193,7 @@ useEffect(()=> {
         <BlockHead size="sm">
           <BlockBetween>
             <BlockHeadContent>
-              <BlockTitle>Orders</BlockTitle>
+              <BlockTitle>Companies</BlockTitle>
             </BlockHeadContent>
             <BlockHeadContent>
               <div className="toggle-wrap nk-block-tools-toggle">
@@ -268,7 +270,7 @@ useEffect(()=> {
                         }}
                       >
                         <Icon name="plus"></Icon>
-                        <span>Add Client</span>
+                        <span>Add Company</span>
                       </Button>
                     </li>
                   </ul>
@@ -293,29 +295,32 @@ useEffect(()=> {
                 </div>
               </DataTableRow> */}
               <DataTableRow>
-                <span className="sub-text">Client</span>
-              </DataTableRow>
-              <DataTableRow size="md">
-                <span className="sub-text">Start Date</span>
+                <span className="sub-text">Name</span>
               </DataTableRow>
               <DataTableRow>
-                <span className="sub-text">Company name</span>
+                <span className="sub-text">Tools</span>
+              </DataTableRow>
+              {/* <DataTableRow size="md">
+                <span className="sub-text">Dog_Date</span>
+              </DataTableRow>
+              <DataTableRow>
+                <span className="sub-text">Advert  name, second type</span>
               </DataTableRow>
               <DataTableRow size="sm">
-                <span className="sub-text">Payment type</span>
+                <span className="sub-text">Company name</span>
               </DataTableRow>
               <DataTableRow size="md">
-                <span className="sub-text">Duration</span>
+                <span className="sub-text">duration</span>
               </DataTableRow>
               <DataTableRow>
-                <span className="sub-text">Summa</span>
+                <span className="sub-text">Payment</span>
               </DataTableRow>
               <DataTableRow>
-                <span className="sub-text">Kv/t</span>
+                <span className="sub-text">Telefon nomer</span>
               </DataTableRow>
               <DataTableRow>
-                <span className="sub-text">Screens</span>
-              </DataTableRow>
+                <span className="sub-text">Tools</span>
+              </DataTableRow> */}
               {/* <DataTableRow className="nk-tb-col-tools">
                 <ul className="nk-tb-actions gx-1 my-n1">
                   <li>
@@ -377,33 +382,33 @@ useEffect(()=> {
                     </DataTableRow> */}
                     <DataTableRow>
                       <a href="#id" onClick={(ev) => ev.preventDefault()}>
-                        {item.client}
+                        {item.name}
                       </a>
                     </DataTableRow>
-                    <DataTableRow >
-                      <span>{item.company}</span>
+                    {/* <DataTableRow >
+                      <span>{item.dog_date}</span>
                     </DataTableRow>
                     <DataTableRow >
                       <span>
-                       {item.paymentType}  
+                       {item.ads_name}  
                       </span>
                     
                        
          
                     </DataTableRow>
                     <DataTableRow >
-                      <span className="tb-sub">{item.duration}</span>
+                      <span className="tb-sub">{item.from_company}</span>
                     </DataTableRow>
 
                     <DataTableRow>
-                      <span className="tb-lead">{item.summa}</span>
+                      <span className="tb-lead">{item.duration}</span>
                     </DataTableRow>
                     <DataTableRow>
-                      <span className="tb-lead">{item.kvT}</span>
+                      <span className="tb-lead">{item.payment_type}</span>
                     </DataTableRow>
                     <DataTableRow>
-                      <span className="tb-lead">{item.screens}</span>
-                    </DataTableRow>
+                      <span className="tb-lead">{item.phone_number}</span>
+                    </DataTableRow> */}
                     <DataTableRow className="nk-tb-col-tools">
                       <ul className="nk-tb-actions gx-1">
                    
@@ -430,7 +435,7 @@ useEffect(()=> {
                             </DropdownToggle>
                             <DropdownMenu end>
                               <ul className="link-list-opt no-bdr">
-                                <li>
+                                {/* <li>
                                   <DropdownItem
                                     tag="a"
                                     href="#dropdown"
@@ -441,9 +446,9 @@ useEffect(()=> {
                                     }}
                                   >
                                     <Icon name="pen"></Icon>
-                                    <span>Edit Client</span>
+                                    <span>Edit Company</span>
                                   </DropdownItem>
-                                </li>
+                                </li> */}
                                 <li>
                                   <DropdownItem
                                     tag="a"
@@ -454,7 +459,7 @@ useEffect(()=> {
                                     }}
                                   >
                                     <Icon name="trash"></Icon>
-                                    <span>Remove Client</span>
+                                    <span>Remove Company</span>
                                   </DropdownItem>
                                 </li>
                               </ul>
@@ -477,18 +482,18 @@ useEffect(()=> {
               />
             ) : (
               <div className="text-center">
-                <span className="text-silent">No clients found</span>
+                <span className="text-silent">No Companies found</span>
               </div>
             )}
           </PreviewAltCard>
         </Block>
 
-      <AddOrderMoadal open={view.add} formData={formData} setFormData={setFormData} onFormCancel={onFormCancel} setData={setData} getData={getData}/>
-<EditOerderMoadal open={view.edit} formData={formData} editFormData={editFormData} setEditFormData={setEditFormData} onFormCancel={onFormCancel} getData={getData}/>
+      <AddCompanyMoadal open={view.add} formData={formData} setFormData={setFormData} onFormCancel={onFormCancel} setData={setData} getData={getData}/>
+{/* <EditCompanyMoadal open={view.edit} formData={formData} editFormData={editFormData} setEditFormData={setEditFormData} onFormCancel={onFormCancel} getData={getData}/> */}
       
       </Content>
     </React.Fragment>
   );
 };
 
-export default OrdersPage;
+export default CompanyPage;

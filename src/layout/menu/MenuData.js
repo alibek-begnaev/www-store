@@ -84,6 +84,10 @@ const menu = [
         text: 'Screen',
         link: '/www-screen',
       },
+      {
+        text: 'Company',
+        link: '/www-company',
+      },
     ],
   },
   // {

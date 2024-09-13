@@ -45,7 +45,7 @@ const ClientsPage = () => {
   const getData = () => {  
     dataInstance2
       .get(
-        `/clients?page=1&limit=10`
+        `/clients?page=1&limit=100`
       )
       .then((res) => {
         setData(
@@ -62,7 +62,10 @@ const ClientsPage = () => {
       )
       .then((res) => {
         console.log("Deleted",
-          res)})
+          res)
+          getData()
+        })
+          
       .catch((error) => {
         console.log(error)
        
@@ -152,9 +155,7 @@ useEffect(()=> {
   // function to delete a Order
   const deleteOrder = (id) => {
     deleteData(id)
-    setTimeout(()=>{ window.location.reload()}, 1000)
-   
-    
+  
   };
 
   // function to delete the seletected item
